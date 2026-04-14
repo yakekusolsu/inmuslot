@@ -215,7 +215,6 @@
             filter: drop-shadow(0 0 15px #ff0000) !important;
         }
 
-        /* 音量スライダーのカスタマイズ */
         input[type="range"] {
             accent-color: #facc15;
         }
@@ -232,8 +231,8 @@
         <p class="mt-6 text-zinc-500 text-sm italic">※クリックすると音が鳴るようになります</p>
     </div>
 
-    <!-- 音声定義 -->
-    <audio id="audio-bgm" src="./audio/yaju.mp3" preload="auto" loop></audio>
+    <!-- 音声定義: .wav から .mp3 (yaranaika.mp3) に変更 -->
+    <audio id="audio-bgm" src="./audio/yaranaika.mp3" preload="auto" loop></audio>
     <audio id="audio-ikisugi" src="./audio/ikisugi.wav" preload="auto"></audio>
     <audio id="audio-sodayo" src="./audio/sodayo.wav" preload="auto"></audio>
     <audio id="audio-yametekure" src="./audio/yametekure.wav" preload="auto"></audio>
@@ -249,7 +248,6 @@
             <div id="led-3" class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_green] animate-pulse" style="animation-delay: 0.4s"></div>
         </div>
 
-        <!-- 裏BGM音量調節バー -->
         <div class="absolute top-4 right-6 flex flex-col items-center">
             <span class="text-[8px] text-zinc-400 mb-1">BGM VOL</span>
             <input type="range" id="bgm-volume" min="0" max="1" step="0.01" value="0.5" class="w-20 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer">
@@ -346,10 +344,8 @@
             spin: document.getElementById('audio-spin')
         };
 
-        // BGM音量初期設定
         audioElements.bgm.volume = 0.5;
 
-        // 音量調節バーのイベント
         bgmVolumeSlider.addEventListener('input', (e) => {
             audioElements.bgm.volume = e.target.value;
         });
@@ -374,7 +370,6 @@
                 }
             }
 
-            // 全ての音声をアンロックしてBGMを開始
             Object.values(audioElements).forEach(a => {
                 if (a) {
                     if (a === audioElements.bgm) {
@@ -440,7 +435,6 @@
             if (isSpinning || balance < betAmount) return;
 
             Object.values(audioElements).forEach(audio => {
-                // BGM以外を停止
                 if (audio && audio !== audioElements.spin && audio !== audioElements.bgm) {
                     audio.pause();
                     audio.currentTime = 0;
