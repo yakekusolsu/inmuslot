@@ -126,16 +126,19 @@
             animation: fever-glow 0.1s ease-in-out infinite alternate !important;
         }
 
+        /* 復活：立体的なスピンボタン */
         .btn-spin {
             background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
             box-shadow: 0 8px 0 #7f1d1d, 0 15px 20px rgba(0,0,0,0.5);
             transition: all 0.1s;
+            border-top: 4px solid #f87171;
         }
 
+        /* 復活：FEVER時の黄金ボタン */
         .btn-fever {
             background: linear-gradient(180deg, #facc15 0%, #a16207 100%) !important;
             box-shadow: 0 8px 0 #713f12, 0 15px 20px rgba(0,0,0,0.5) !important;
-            border-top-color: #fef08a !important;
+            border-top: 4px solid #fef08a !important;
         }
 
         .btn-spin:active:not(:disabled) {
@@ -218,7 +221,7 @@
         <p class="mt-6 text-zinc-500 text-sm italic">※クリックすると音が鳴るようになります</p>
     </div>
 
-    <!-- 音声定義の修正: 相対パスを ./audio/ に固定 -->
+    <!-- 音声定義 -->
     <audio id="audio-ikisugi" src="./audio/ikisugi.wav" preload="auto"></audio>
     <audio id="audio-sodayo" src="./audio/sodayo.wav" preload="auto"></audio>
     <audio id="audio-yametekure" src="./audio/yametekure.wav" preload="auto"></audio>
@@ -268,7 +271,7 @@
         </div>
 
         <div class="mt-4 flex flex-col gap-6">
-            <button id="spin-btn" class="btn-spin py-8 rounded-[30px] text-4xl font-black italic text-white uppercase tracking-widest border-t-4 border-red-400">
+            <button id="spin-btn" class="btn-spin py-8 rounded-[30px] text-4xl font-black italic text-white uppercase tracking-widest">
                 SPIN
             </button>
             <div class="flex justify-between items-center px-2">
@@ -337,7 +340,6 @@
         }
 
         document.getElementById('entry-btn').addEventListener('click', async () => {
-            // Audio Contextの明示的なアクティベート試行
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             if (AudioContext) {
                 const ctx = new AudioContext();
@@ -346,13 +348,12 @@
                 }
             }
 
-            // 全オーディオ要素を一度再生・即停止させてロック解除
             Object.values(audioElements).forEach(a => {
                 if (a) {
                     a.play().then(() => {
                         a.pause();
                         a.currentTime = 0;
-                    }).catch(e => console.log("Unlock failed for an element", e));
+                    }).catch(e => console.log("Unlock failed", e));
                 }
             });
             
@@ -527,7 +528,7 @@
             feverRemaining = 10;
             document.body.classList.add('fever-bg');
             frameEl.classList.add('fever-active');
-            spinBtn.classList.add('btn-fever');
+            spinBtn.classList.add('btn-fever'); // FEVER時黄金ボタン
             titleLogo.classList.add('logo-fever'); 
             feverBadge.style.display = 'block';
             triggerFlash();
