@@ -126,34 +126,39 @@
             animation: fever-glow 0.1s ease-in-out infinite alternate !important;
         }
 
-        /* 画像を使用したスピンボタンのスタイル */
+        /* 画像を使用したスピンボタンの完全修正 */
         .btn-spin {
+            display: block;
             width: 100%;
-            height: 100px;
+            max-width: 320px;
+            height: 120px;
+            margin: 0 auto;
             background-image: url('./image/spin_1.png');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
             background-color: transparent;
             border: none;
-            transition: transform 0.1s, filter 0.1s;
+            transition: transform 0.05s ease-out;
             cursor: pointer;
             outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* FEVER時の画像切り替え */
         .btn-fever {
             background-image: url('./image/spin_2.png') !important;
-            filter: drop-shadow(0 0 10px #facc15);
+            filter: drop-shadow(0 0 15px #facc15);
         }
 
         .btn-spin:active:not(:disabled) {
-            transform: scale(0.95) translateY(4px);
+            transform: scale(0.92) translateY(6px);
         }
 
         .btn-spin:disabled {
-            filter: grayscale(1) opacity(0.5);
+            filter: grayscale(1) opacity(0.3);
             cursor: not-allowed;
+            transform: translateY(4px);
         }
 
         .jackpot-text {
@@ -274,7 +279,7 @@
         </div>
 
         <div class="mt-4 flex flex-col gap-6">
-            <!-- スピンボタンを画像ベースに変更 -->
+            <!-- スピンボタン画像ベース -->
             <button id="spin-btn" class="btn-spin" aria-label="SPIN"></button>
             <div class="flex justify-between items-center px-2">
                 <div id="bet-display" class="text-xs font-bold text-zinc-400">CURRENT BET: 10</div>
