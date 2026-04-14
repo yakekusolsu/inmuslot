@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>INMU SLOT MACHINE - Tatarigami Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -20,6 +20,9 @@
             background-position: center;
             background-attachment: fixed;
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .fever-bg {
@@ -27,9 +30,37 @@
             background-blend-mode: overlay;
         }
 
+        /* モバイル対応: 画面が小さい場合に全体を縮小 */
+        #app-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        @media (max-width: 480px) {
+            #app-container {
+                transform: scale(0.85);
+                transform-origin: center center;
+            }
+        }
+
+        @media (max-height: 700px) and (max-width: 480px) {
+            #app-container {
+                transform: scale(0.75);
+            }
+        }
+
         #app-container {
             background-color: rgba(24, 24, 27, 0.85);
             backdrop-filter: blur(8px);
+            width: 100%;
+            max-width: 400px;
+            padding: 1.5rem;
+            border: 10px solid #27272a;
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
         #entry-overlay {
@@ -45,13 +76,20 @@
         }
 
         .reel {
-            height: 150px;
-            width: 110px;
+            height: 120px;
+            width: 90px;
             background: rgba(26, 26, 26, 0.9);
             border: 2px solid #333;
             border-radius: 8px;
             overflow: hidden;
             position: relative;
+        }
+
+        @media (min-width: 400px) {
+            .reel {
+                height: 150px;
+                width: 110px;
+            }
         }
 
         .reel::after {
@@ -77,7 +115,7 @@
         }
 
         .symbol {
-            height: 150px;
+            height: 120px;
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -87,50 +125,45 @@
             padding: 5px;
         }
 
+        @media (min-width: 400px) {
+            .symbol { height: 150px; }
+        }
+
         .symbol img {
-            width: 90px;
-            height: 90px;
+            width: 70px;
+            height: 70px;
             object-fit: contain;
-            border-radius: 10px;
+            border-radius: 8px;
+        }
+
+        @media (min-width: 400px) {
+            .symbol img { width: 90px; height: 90px; }
         }
 
         .symbol-label {
-            font-size: 0.7rem;
-            margin-top: 5px;
+            font-size: 0.6rem;
+            margin-top: 4px;
             font-weight: bold;
             color: #ddd;
             background: rgba(0,0,0,0.6);
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: 1px 4px;
+            border-radius: 3px;
         }
 
-        .blur {
-            filter: blur(8px) opacity(0.5);
-        }
+        .blur { filter: blur(4px) opacity(0.6); }
 
         @keyframes win-glow {
             0% { box-shadow: 0 0 10px #facc15; border-color: #facc15; }
             100% { box-shadow: 0 0 40px #f59e0b; border-color: #ffffff; }
         }
 
-        @keyframes fever-glow {
-            0% { box-shadow: 0 0 20px #ef4444; border-color: #ef4444; }
-            100% { box-shadow: 0 0 50px #ff0000; border-color: #fde047; }
-        }
-
-        .win-active {
-            animation: win-glow 0.2s ease-in-out infinite alternate;
-        }
-
-        .fever-active {
-            animation: fever-glow 0.1s ease-in-out infinite alternate !important;
-        }
+        .win-active { animation: win-glow 0.2s ease-in-out infinite alternate; }
 
         .btn-spin {
             display: block;
             width: 100%;
-            max-width: 320px;
-            height: 120px;
+            max-width: 280px;
+            height: 100px;
             margin: 0 auto;
             background-image: url('./image/spin_1.png');
             background-size: contain;
@@ -149,37 +182,26 @@
             filter: drop-shadow(0 0 15px #facc15);
         }
 
-        .btn-spin:active:not(:disabled) {
-            transform: scale(0.92) translateY(6px);
-        }
+        .btn-spin:active:not(:disabled) { transform: scale(0.92) translateY(4px); }
+        .btn-spin:disabled { filter: grayscale(1) opacity(0.3); transform: translateY(2px); }
 
-        .btn-spin:disabled {
-            filter: grayscale(1) opacity(0.3);
-            cursor: not-allowed;
-            transform: translateY(4px);
-        }
-
-        .jackpot-text {
-            animation: rainbow 1s linear infinite;
-        }
-
+        .jackpot-text { animation: rainbow 1s linear infinite; }
         @keyframes rainbow {
             0% { color: #ff0000; }
-            20% { color: #ffff00; }
-            40% { color: #00ff00; }
-            60% { color: #00ffff; }
-            80% { color: #0000ff; }
+            25% { color: #ffff00; }
+            50% { color: #00ff00; }
+            75% { color: #00ffff; }
             100% { color: #ff00ff; }
         }
 
         .fever-label {
             position: absolute;
-            top: -20px;
-            right: -10px;
+            top: -15px;
+            right: -5px;
             background: red;
             color: white;
-            padding: 2px 10px;
-            font-size: 12px;
+            padding: 2px 8px;
+            font-size: 10px;
             border-radius: 20px;
             transform: rotate(15deg);
             box-shadow: 0 0 10px red;
@@ -192,6 +214,7 @@
             border: 2px solid #3f3f46;
             transition: all 0.2s;
             cursor: pointer;
+            font-size: 10px;
         }
         .bet-btn.active {
             background: #facc15;
@@ -199,39 +222,27 @@
             border-color: #ffffff;
             box-shadow: 0 0 10px #facc15;
         }
-        .bet-btn:disabled {
-            cursor: not-allowed;
-            opacity: 0.3;
-        }
 
         #title-logo {
-            max-width: 280px;
+            max-width: 220px;
             height: auto;
             margin: 0 auto;
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
-            transition: filter 0.3s;
-        }
-        .logo-fever {
-            filter: drop-shadow(0 0 15px #ff0000) !important;
         }
 
-        input[type="range"] {
-            accent-color: #facc15;
-        }
+        input[type="range"] { accent-color: #facc15; }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen">
+<body>
 
     <div id="entry-overlay">
-        <img src="./image/真夏の夜のカジノ.png" alt="Logo" class="w-64 mb-8">
-        <h1 class="text-2xl mb-8 text-yellow-500 italic">24歳、カジノです</h1>
-        <button id="entry-btn" class="bg-red-600 hover:bg-red-500 text-white px-12 py-4 rounded-full text-2xl font-black shadow-[0_0_20px_red] transition-transform active:scale-95">
+        <img src="./image/真夏の夜のカジノ.png" alt="Logo" class="w-48 mb-6">
+        <h1 class="text-xl mb-6 text-yellow-500 italic text-center">24歳、カジノです</h1>
+        <button id="entry-btn" class="bg-red-600 hover:bg-red-500 text-white px-10 py-3 rounded-full text-xl font-black shadow-[0_0_20px_red] transition-transform active:scale-95">
             入店する
         </button>
-        <p class="mt-6 text-zinc-500 text-sm italic">※クリックするとBGMがループ再生されます</p>
+        <p class="mt-6 text-zinc-500 text-xs italic">※クリックするとBGMがループ再生されます</p>
     </div>
 
-    <!-- 音声定義 -->
     <audio id="audio-bgm" src="./audio/yaranaika.mp3" preload="auto" loop></audio>
     <audio id="audio-ikisugi" src="./audio/ikisugi.wav" preload="auto"></audio>
     <audio id="audio-sodayo" src="./audio/sodayo.wav" preload="auto"></audio>
@@ -240,58 +251,59 @@
     <audio id="audio-iiyo" src="./audio/114514.wav" preload="auto"></audio>
     <audio id="audio-spin" src="./audio/butchipa.wav" preload="auto" loop></audio>
 
-    <div id="app-container" class="w-full max-w-md p-6 border-[12px] border-zinc-800 rounded-[50px] shadow-2xl relative overflow-hidden">
-        
-        <!-- 上部のLEDドットを削除し、ボリューム設定を配置 -->
-        <div class="absolute top-4 right-6 flex flex-col items-center">
-            <span class="text-[8px] text-zinc-400 mb-1">BGM VOL</span>
-            <input type="range" id="bgm-volume" min="0" max="1" step="0.01" value="0.5" class="w-20 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer">
-        </div>
-
-        <div class="text-center mt-6 mb-8 flex justify-center">
-            <img id="title-logo" src="./image/真夏の夜のカジノ.png" alt="真夏の夜のカジノ">
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="bg-black/80 rounded-xl p-3 border-2 border-zinc-700 shadow-inner">
-                <span class="text-[10px] text-zinc-500 block uppercase">Credit</span>
-                <span id="balance" class="text-3xl font-mono text-green-500">1000</span>
+    <div id="app-wrapper">
+        <div id="app-container" class="relative overflow-hidden">
+            
+            <div class="absolute top-3 right-4 flex flex-col items-center">
+                <span class="text-[7px] text-zinc-500 mb-1">BGM VOL</span>
+                <input type="range" id="bgm-volume" min="0" max="1" step="0.01" value="0.5" class="w-16 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer">
             </div>
-            <div class="bg-black/80 rounded-xl p-3 border-2 border-zinc-700 shadow-inner text-right relative">
-                <div id="fever-count-badge" class="fever-label">FEVER: <span id="fever-remaining">0</span></div>
-                <span class="text-[10px] text-zinc-500 block uppercase">Payout</span>
-                <span id="payout" class="text-3xl font-mono text-yellow-500">0</span>
+
+            <div class="text-center mt-4 mb-4 flex justify-center">
+                <img id="title-logo" src="./image/真夏の夜のカジノ.png" alt="真夏の夜のカジノ">
             </div>
-        </div>
 
-        <div class="flex justify-between gap-2 mb-6">
-            <button onclick="changeBet(10)" data-amount="10" class="bet-btn active flex-1 py-1 rounded-lg text-xs font-bold uppercase">Bet 10</button>
-            <button onclick="changeBet(50)" data-amount="50" class="bet-btn flex-1 py-1 rounded-lg text-xs font-bold uppercase">Bet 50</button>
-            <button onclick="changeBet(100)" data-amount="100" class="bet-btn flex-1 py-1 rounded-lg text-xs font-bold uppercase">Bet 100</button>
-            <button onclick="changeBet(500)" data-amount="500" class="bet-btn flex-1 py-1 rounded-lg text-xs font-bold uppercase">Bet 500</button>
-        </div>
-
-        <div id="machine-frame" class="bg-black/60 p-4 rounded-3xl border-4 border-black flex justify-center gap-2 shadow-2xl transition-all duration-300 relative">
-            <div class="reel"><div id="reel1" class="reel-inner"></div></div>
-            <div class="reel"><div id="reel2" class="reel-inner"></div></div>
-            <div class="reel"><div id="reel3" class="reel-inner"></div></div>
-        </div>
-
-        <div id="msg" class="h-16 flex items-center justify-center text-center font-bold text-xl text-zinc-300 italic">
-            やってやりましょうよ！
-        </div>
-
-        <div class="mt-4 flex flex-col gap-6">
-            <button id="spin-btn" class="btn-spin" aria-label="SPIN"></button>
-            <div class="flex justify-between items-center px-2">
-                <div id="bet-display" class="text-xs font-bold text-zinc-400">CURRENT BET: 10</div>
-                <button id="reset-btn" class="text-[10px] text-zinc-500 underline hover:text-zinc-300">
-                    再走（リセット）
-                </button>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-black/80 rounded-xl p-2 border-2 border-zinc-700 shadow-inner">
+                    <span class="text-[8px] text-zinc-500 block uppercase">Credit</span>
+                    <span id="balance" class="text-2xl font-mono text-green-500">1000</span>
+                </div>
+                <div class="bg-black/80 rounded-xl p-2 border-2 border-zinc-700 shadow-inner text-right relative">
+                    <div id="fever-count-badge" class="fever-label">FEVER: <span id="fever-remaining">0</span></div>
+                    <span class="text-[8px] text-zinc-500 block uppercase">Payout</span>
+                    <span id="payout" class="text-2xl font-mono text-yellow-500">0</span>
+                </div>
             </div>
-        </div>
 
-        <div id="flash-overlay" class="fixed inset-0 pointer-events-none z-50 opacity-0 bg-white transition-opacity duration-100"></div>
+            <div class="flex justify-between gap-1 mb-4">
+                <button onclick="changeBet(10)" data-amount="10" class="bet-btn active flex-1 py-1 rounded-md font-bold">10</button>
+                <button onclick="changeBet(50)" data-amount="50" class="bet-btn flex-1 py-1 rounded-md font-bold">50</button>
+                <button onclick="changeBet(100)" data-amount="100" class="bet-btn flex-1 py-1 rounded-md font-bold">100</button>
+                <button onclick="changeBet(500)" data-amount="500" class="bet-btn flex-1 py-1 rounded-md font-bold">500</button>
+            </div>
+
+            <div id="machine-frame" class="bg-black/60 p-2 rounded-2xl border-2 border-zinc-800 flex justify-center gap-1 shadow-2xl transition-all duration-300 relative">
+                <div class="reel"><div id="reel1" class="reel-inner"></div></div>
+                <div class="reel"><div id="reel2" class="reel-inner"></div></div>
+                <div class="reel"><div id="reel3" class="reel-inner"></div></div>
+            </div>
+
+            <div id="msg" class="h-12 flex items-center justify-center text-center font-bold text-sm text-zinc-300 italic">
+                やってやりましょうよ！
+            </div>
+
+            <div class="mt-2 flex flex-col gap-4">
+                <button id="spin-btn" class="btn-spin" aria-label="SPIN"></button>
+                <div class="flex justify-between items-center px-1">
+                    <div id="bet-display" class="text-[10px] font-bold text-zinc-500">BET: 10</div>
+                    <button id="reset-btn" class="text-[9px] text-zinc-600 underline hover:text-zinc-400">
+                        再走（リセット）
+                    </button>
+                </div>
+            </div>
+
+            <div id="flash-overlay" class="fixed inset-0 pointer-events-none z-50 opacity-0 bg-white transition-opacity duration-100"></div>
+        </div>
     </div>
 
     <script>
@@ -310,7 +322,7 @@
         let isSpinning = false;
         let isFever = false;
         let feverRemaining = 0;
-        const REEL_SPEED = [1500, 2000, 2500];
+        const REEL_SPEED = [1200, 1600, 2000]; // モバイル向けに少し高速化
 
         const reelInners = [
             document.getElementById('reel1'),
@@ -340,7 +352,6 @@
         };
 
         audioElements.bgm.volume = 0.5;
-
         bgmVolumeSlider.addEventListener('input', (e) => {
             audioElements.bgm.volume = e.target.value;
         });
@@ -348,41 +359,30 @@
         function safePlay(audio) {
             if (!audio) return;
             audio.currentTime = 0;
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    console.error("Playback failed:", error);
-                });
-            }
+            audio.play().catch(() => {});
         }
 
         document.getElementById('entry-btn').addEventListener('click', async () => {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             if (AudioContext) {
                 const ctx = new AudioContext();
-                if (ctx.state === 'suspended') {
-                    await ctx.resume();
-                }
+                if (ctx.state === 'suspended') await ctx.resume();
             }
 
             Object.values(audioElements).forEach(a => {
-                if (a) {
-                    a.play().then(() => {
-                        if (a !== audioElements.bgm) {
-                            a.pause();
-                            a.currentTime = 0;
-                        } else {
-                            a.loop = true;
-                        }
-                    }).catch(e => console.log("Unlock failed", e));
-                }
+                a.play().then(() => {
+                    if (a !== audioElements.bgm) {
+                        a.pause();
+                        a.currentTime = 0;
+                    } else {
+                        a.loop = true;
+                    }
+                }).catch(() => {});
             });
             
             const overlay = document.getElementById('entry-overlay');
             overlay.style.opacity = '0';
-            setTimeout(() => {
-                overlay.style.display = 'none';
-            }, 500);
+            setTimeout(() => overlay.style.display = 'none', 500);
         });
 
         function init() {
@@ -407,54 +407,45 @@
             if (isSpinning) return;
             betAmount = amount;
             document.querySelectorAll('.bet-btn').forEach(btn => {
-                const btnAmount = parseInt(btn.getAttribute('data-amount'));
-                btn.classList.toggle('active', btnAmount === betAmount);
+                btn.classList.toggle('active', parseInt(btn.getAttribute('data-amount')) === betAmount);
             });
-            betDisplay.textContent = `CURRENT BET: ${betAmount}`;
+            betDisplay.textContent = `BET: ${betAmount}`;
             updateUI();
         }
 
         function getWeightedChar() {
-            let currentPool = [...charData];
-            if (isFever) currentPool.push(feverSymbol);
-            const total = currentPool.reduce((s, c) => s + c.weight, 0);
+            let pool = [...charData];
+            if (isFever) pool.push(feverSymbol);
+            const total = pool.reduce((s, c) => s + c.weight, 0);
             let r = Math.random() * total;
-            for (const c of currentPool) {
+            for (const c of pool) {
                 if (r < c.weight) return c;
                 r -= c.weight;
             }
-            return currentPool[0];
+            return pool[0];
         }
 
         async function startSpin() {
             if (isSpinning || balance < betAmount) return;
 
             Object.values(audioElements).forEach(audio => {
-                if (audio && audio !== audioElements.spin && audio !== audioElements.bgm) {
-                    audio.pause();
-                    audio.currentTime = 0;
+                if (audio !== audioElements.spin && audio !== audioElements.bgm) {
+                    audio.pause(); audio.currentTime = 0;
                 }
             });
 
             isSpinning = true;
             balance -= betAmount;
             updateUI(); 
-
             safePlay(audioElements.spin);
 
-            if (isFever) {
-                msgEl.textContent = 'ｲｷｽｷﾞｨ!!ｲｸｲｸ…';
-                msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-2xl text-yellow-300 italic animate-bounce';
-            } else {
-                msgEl.textContent = 'いいよ！来いよ！（激熱）';
-                msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-xl text-blue-400 italic';
-            }
+            msgEl.textContent = isFever ? 'ｲｷｽｷﾞｨ!!ｲｸｲｸ…' : 'いいよ！来いよ！';
+            msgEl.className = `h-12 flex items-center justify-center text-center font-bold text-sm italic ${isFever ? 'text-yellow-300 animate-pulse' : 'text-blue-400'}`;
             
             frameEl.classList.remove('win-active');
             const results = await Promise.all(reelInners.map((reel, i) => animateReel(reel, i)));
             
             if (audioElements.spin) audioElements.spin.pause();
-
             evaluate(results);
             isSpinning = false;
             updateUI();
@@ -463,33 +454,38 @@
         function animateReel(reel, index) {
             return new Promise(resolve => {
                 const targetChar = getWeightedChar();
-                const dummyCount = 20 + (index * 10);
+                const dummyCount = 15 + (index * 8);
                 const duration = REEL_SPEED[index];
+                const symHeight = window.innerWidth < 400 ? 120 : 150;
+
                 const currentHTML = reel.firstElementChild ? reel.firstElementChild.innerHTML : '';
                 reel.innerHTML = '';
                 const startSym = document.createElement('div');
                 startSym.className = 'symbol';
                 startSym.innerHTML = currentHTML;
                 reel.appendChild(startSym);
+
                 for(let i=0; i<dummyCount; i++) {
                     const randomChar = (isFever && Math.random() < 0.1) ? feverSymbol : charData[Math.floor(Math.random() * charData.length)];
                     createSymbol(reel, randomChar, true);
                 }
                 createSymbol(reel, targetChar);
-                createSymbol(reel, charData[Math.floor(Math.random() * charData.length)]);
+                createSymbol(reel, charData[0]);
+
                 reel.style.transition = 'none';
                 reel.style.transform = 'translateY(0px)';
                 requestAnimationFrame(() => {
                     reel.style.transition = `transform ${duration}ms cubic-bezier(0.4, 0, 0.2, 1.1)`;
-                    reel.style.transform = `translateY(-${(dummyCount + 1) * 150}px)`;
+                    reel.style.transform = `translateY(-${(dummyCount + 1) * symHeight}px)`;
                 });
+
                 setTimeout(() => {
                     reel.style.transition = 'none';
                     reel.style.transform = 'translateY(0px)';
                     reel.innerHTML = '';
                     createSymbol(reel, targetChar);
-                    createSymbol(reel, charData[Math.floor(Math.random() * charData.length)]);
-                    createSymbol(reel, charData[Math.floor(Math.random() * charData.length)]);
+                    createSymbol(reel, charData[0]);
+                    createSymbol(reel, charData[1]);
                     resolve(targetChar);
                 }, duration);
             });
@@ -501,35 +497,25 @@
 
             if (c1.id === c2.id && c2.id === c3.id) {
                 win = c1.multiplier * betAmount; 
-                if (c1.id === 'logo') {
-                    msgEl.textContent = 'ｲｷｽｷﾞｨ!!!! (神)';
-                    msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-4xl jackpot-text';
-                    triggerFlash();
-                } else {
-                    msgEl.textContent = `や　っ　た　ぜ (+${win})`;
-                    msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-3xl jackpot-text';
-                    triggerFlash();
-                    if (c1.id === 'yjsp') {
-                        safePlay(audioElements.ikisugi);
-                        if (!isFever) startFever();
-                    } else if (c1.id === 'mur') {
-                        safePlay(audioElements.sodayo);
-                    } else if (c1.id === 'kmr') {
-                        safePlay(audioElements.yametekure);
-                    } else if (c1.id === 'kuso') {
-                        safePlay(audioElements.yattaze);
-                    }
-                }
+                msgEl.textContent = `や　っ　た　ぜ (+${win})`;
+                msgEl.className = 'h-12 flex items-center justify-center text-center font-bold text-xl jackpot-text';
+                triggerFlash();
+                if (c1.id === 'yjsp') {
+                    safePlay(audioElements.ikisugi);
+                    if (!isFever) startFever();
+                } else if (c1.id === 'mur') safePlay(audioElements.sodayo);
+                else if (c1.id === 'kmr') safePlay(audioElements.yametekure);
+                else if (c1.id === 'kuso') safePlay(audioElements.yattaze);
             } else {
                 const yajuuCount = results.filter(c => c.id === 'yjsp').length;
                 if (yajuuCount === 2) {
                     win = Math.floor(betAmount * 5); 
                     msgEl.textContent = `い　い　よ (+${win})`;
-                    msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-lg text-yellow-400';
+                    msgEl.className = 'h-12 flex items-center justify-center text-center font-bold text-sm text-yellow-400';
                     safePlay(audioElements.iiyo);
                 } else {
-                    msgEl.textContent = 'ヌッ！ (ハズレ)';
-                    msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-lg text-zinc-400';
+                    msgEl.textContent = 'ヌッ！';
+                    msgEl.className = 'h-12 flex items-center justify-center text-center font-bold text-sm text-zinc-500';
                 }
             }
 
@@ -548,47 +534,29 @@
             isFever = true;
             feverRemaining = 10;
             document.body.classList.add('fever-bg');
-            frameEl.classList.add('fever-active');
             spinBtn.classList.add('btn-fever'); 
-            titleLogo.classList.add('logo-fever'); 
             feverBadge.style.display = 'block';
-            triggerFlash();
         }
 
         function endFever() {
             isFever = false;
             document.body.classList.remove('fever-bg');
-            frameEl.classList.remove('fever-active');
             spinBtn.classList.remove('btn-fever');
-            titleLogo.classList.remove('logo-fever');
             feverBadge.style.display = 'none';
-            msgEl.textContent = '賢者タイム終了';
         }
 
         function triggerFlash() {
             flashEl.style.opacity = '1';
             setTimeout(() => flashEl.style.opacity = '0', 100);
-            setTimeout(() => {
-                flashEl.style.opacity = '1';
-                setTimeout(() => flashEl.style.opacity = '0', 100);
-            }, 200);
         }
 
         function updateUI() {
             balanceEl.textContent = balance;
             feverRemainingEl.textContent = feverRemaining;
-            
             document.querySelectorAll('.bet-btn').forEach(btn => {
-                const amount = parseInt(btn.getAttribute('data-amount'));
-                btn.disabled = isSpinning || balance < amount;
+                btn.disabled = isSpinning || balance < parseInt(btn.getAttribute('data-amount'));
             });
-
-            if (balance < betAmount && !isSpinning) {
-                spinBtn.disabled = true;
-                msgEl.textContent = '金、暴力、サッカー（終焉）';
-            } else {
-                spinBtn.disabled = isSpinning;
-            }
+            spinBtn.disabled = isSpinning || balance < betAmount;
         }
 
         spinBtn.addEventListener('click', startSpin);
@@ -596,11 +564,9 @@
             if(isSpinning) return;
             balance = 1000;
             payoutEl.textContent = '0';
-            betAmount = 10;
             endFever();
             changeBet(10);
-            msgEl.textContent = '再走（リセット完了）';
-            updateUI();
+            init();
         });
 
         init();
