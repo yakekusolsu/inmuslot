@@ -109,36 +109,20 @@
             filter: blur(8px) opacity(0.5);
         }
 
-        @keyframes win-glow {
-            0% { box-shadow: 0 0 10px #facc15; border-color: #facc15; }
-            100% { box-shadow: 0 0 40px #f59e0b; border-color: #ffffff; }
-        }
-
-        @keyframes fever-glow {
-            0% { box-shadow: 0 0 20px #ef4444; border-color: #ef4444; }
-            100% { box-shadow: 0 0 50px #ff0000; border-color: #fde047; }
-        }
-
-        .win-active {
-            animation: win-glow 0.2s ease-in-out infinite alternate;
-        }
-
-        .fever-active {
-            animation: fever-glow 0.1s ease-in-out infinite alternate !important;
-        }
-
         /* SPINボタンの画像化設定 */
         .btn-spin {
             width: 100%;
-            height: 120px; /* 画像の高さに合わせて調整 */
-            background-image: url('spin_1.png');
+            height: 120px;
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
             border: none;
             cursor: pointer;
-            transition: transform 0.1s, filter 0.2s;
+            transition: transform 0.1s;
             outline: none;
+            background-color: transparent;
+            /* 初期画像を設定。パスが違う場合はここを修正してください */
+            background-image: url('spin_1.png');
         }
 
         .btn-spin:active:not(:disabled) {
@@ -148,19 +132,6 @@
         .btn-spin:disabled {
             filter: grayscale(0.8) brightness(0.5);
             cursor: not-allowed;
-        }
-
-        .jackpot-text {
-            animation: rainbow 1s linear infinite;
-        }
-
-        @keyframes rainbow {
-            0% { color: #ff0000; }
-            20% { color: #ffff00; }
-            40% { color: #00ff00; }
-            60% { color: #00ffff; }
-            80% { color: #0000ff; }
-            100% { color: #ff00ff; }
         }
 
         .fever-label {
@@ -190,32 +161,28 @@
             border-color: #ffffff;
             box-shadow: 0 0 10px #facc15;
         }
-        .bet-btn:disabled {
-            cursor: not-allowed;
-            opacity: 0.3;
-        }
 
         #title-logo {
             max-width: 280px;
             height: auto;
             margin: 0 auto;
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
-            transition: filter 0.3s;
-        }
-        .logo-fever {
-            filter: drop-shadow(0 0 15px #ff0000) !important;
         }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
 
+    <!-- 画像のプリロード用（非表示） -->
+    <div style="display:none;">
+        <img src="spin_1.png">
+        <img src="spin_2.png">
+    </div>
+
     <div id="entry-overlay">
         <img src="真夏の夜のカジノ.png" alt="Logo" class="w-64 mb-8">
         <h1 class="text-2xl mb-8 text-yellow-500 italic">24歳、カジノです</h1>
-        <button id="entry-btn" class="bg-red-600 hover:bg-red-500 text-white px-12 py-4 rounded-full text-2xl font-black shadow-[0_0_20px_red] transition-transform active:scale-95">
+        <button id="entry-btn" class="bg-red-600 hover:bg-red-500 text-white px-12 py-4 rounded-full text-2xl font-black shadow-[0_0_20px_red]">
             入店する
         </button>
-        <p class="mt-6 text-zinc-500 text-sm italic">※クリックすると音が鳴るようになります</p>
     </div>
 
     <audio id="audio-ikisugi" src="ikisugi.wav" preload="auto"></audio>
@@ -225,38 +192,31 @@
     <audio id="audio-iiyo" src="114514.wav" preload="auto"></audio>
     <audio id="audio-spin" src="butchipa.wav" preload="auto" loop></audio>
 
-    <div id="app-container" class="w-full max-w-md p-6 border-[12px] border-zinc-800 rounded-[50px] shadow-2xl relative overflow-hidden">
-        
-        <div class="absolute top-4 left-1/2 -translate-x-1/2 flex gap-4">
-            <div id="led-1" class="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_red] animate-pulse"></div>
-            <div id="led-2" class="w-3 h-3 rounded-full bg-yellow-500 shadow-[0_0_10px_yellow] animate-pulse" style="animation-delay: 0.2s"></div>
-            <div id="led-3" class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_green] animate-pulse" style="animation-delay: 0.4s"></div>
-        </div>
-
+    <div id="app-container" class="w-full max-w-md p-6 border-[12px] border-zinc-800 rounded-[50px] shadow-2xl relative">
         <div class="text-center mt-6 mb-8 flex justify-center">
             <img id="title-logo" src="真夏の夜のカジノ.png" alt="真夏の夜のカジノ">
         </div>
 
         <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="bg-black/80 rounded-xl p-3 border-2 border-zinc-700 shadow-inner">
-                <span class="text-[10px] text-zinc-500 block uppercase">Credit</span>
+            <div class="bg-black/80 rounded-xl p-3 border-2 border-zinc-700">
+                <span class="text-[10px] text-zinc-500 block">Credit</span>
                 <span id="balance" class="text-3xl font-mono text-green-500">1000</span>
             </div>
-            <div class="bg-black/80 rounded-xl p-3 border-2 border-zinc-700 shadow-inner text-right relative">
+            <div class="bg-black/80 rounded-xl p-3 border-2 border-zinc-700 text-right relative">
                 <div id="fever-count-badge" class="fever-label">FEVER: <span id="fever-remaining">0</span></div>
-                <span class="text-[10px] text-zinc-500 block uppercase">Payout</span>
+                <span class="text-[10px] text-zinc-500 block">Payout</span>
                 <span id="payout" class="text-3xl font-mono text-yellow-500">0</span>
             </div>
         </div>
 
         <div class="flex justify-between gap-2 mb-6">
-            <button onclick="changeBet(10)" data-amount="10" class="bet-btn active flex-1 py-1 rounded-lg text-xs font-bold uppercase">Bet 10</button>
-            <button onclick="changeBet(50)" data-amount="50" class="bet-btn flex-1 py-1 rounded-lg text-xs font-bold uppercase">Bet 50</button>
-            <button onclick="changeBet(100)" data-amount="100" class="bet-btn flex-1 py-1 rounded-lg text-xs font-bold uppercase">Bet 100</button>
-            <button onclick="changeBet(500)" data-amount="500" class="bet-btn flex-1 py-1 rounded-lg text-xs font-bold uppercase">Bet 500</button>
+            <button onclick="changeBet(10)" data-amount="10" class="bet-btn active flex-1 py-1 rounded-lg text-xs font-bold">Bet 10</button>
+            <button onclick="changeBet(50)" data-amount="50" class="bet-btn flex-1 py-1 rounded-lg text-xs font-bold">Bet 50</button>
+            <button onclick="changeBet(100)" data-amount="100" class="bet-btn flex-1 py-1 rounded-lg text-xs font-bold">Bet 100</button>
+            <button onclick="changeBet(500)" data-amount="500" class="bet-btn flex-1 py-1 rounded-lg text-xs font-bold">Bet 500</button>
         </div>
 
-        <div id="machine-frame" class="bg-black/60 p-4 rounded-3xl border-4 border-black flex justify-center gap-2 shadow-2xl transition-all duration-300 relative">
+        <div id="machine-frame" class="bg-black/60 p-4 rounded-3xl border-4 border-black flex justify-center gap-2 relative">
             <div class="reel"><div id="reel1" class="reel-inner"></div></div>
             <div class="reel"><div id="reel2" class="reel-inner"></div></div>
             <div class="reel"><div id="reel3" class="reel-inner"></div></div>
@@ -267,17 +227,12 @@
         </div>
 
         <div class="mt-4 flex flex-col gap-6">
-            <button id="spin-btn" class="btn-spin">
-                <!-- 画像ボタン -->
-            </button>
+            <button id="spin-btn" class="btn-spin"></button>
             <div class="flex justify-between items-center px-2">
                 <div id="bet-display" class="text-xs font-bold text-zinc-400">CURRENT BET: 10</div>
-                <button id="reset-btn" class="text-[10px] text-zinc-500 underline hover:text-zinc-300">
-                    再走（リセット）
-                </button>
+                <button id="reset-btn" class="text-[10px] text-zinc-500 underline">再走（リセット）</button>
             </div>
         </div>
-
         <div id="flash-overlay" class="fixed inset-0 pointer-events-none z-50 opacity-0 bg-white transition-opacity duration-100"></div>
     </div>
 
@@ -292,6 +247,10 @@
 
         const feverSymbol = { id: 'logo', name: 'JackPot', src: 'logo.png', multiplier: 1145, weight: 1 };
 
+        // 画像のファイル名。もしフォルダに入っているなら 'image/spin_1.png' のように書き換えてください。
+        const SPIN_IMG_NORMAL = "url('spin_1.png')";
+        const SPIN_IMG_ACTIVE = "url('spin_2.png')";
+
         let balance = 1000;
         let betAmount = 10;
         let isSpinning = false;
@@ -299,11 +258,7 @@
         let feverRemaining = 0;
         const REEL_SPEED = [1500, 2000, 2500];
 
-        const reelInners = [
-            document.getElementById('reel1'),
-            document.getElementById('reel2'),
-            document.getElementById('reel3')
-        ];
+        const reelInners = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
         const balanceEl = document.getElementById('balance');
         const payoutEl = document.getElementById('payout');
         const spinBtn = document.getElementById('spin-btn');
@@ -312,8 +267,6 @@
         const flashEl = document.getElementById('flash-overlay');
         const feverBadge = document.getElementById('fever-count-badge');
         const feverRemainingEl = document.getElementById('fever-remaining');
-        const titleLogo = document.getElementById('title-logo');
-        const betDisplay = document.getElementById('bet-display');
         
         const ikisugiAudio = document.getElementById('audio-ikisugi');
         const sodayoAudio = document.getElementById('audio-sodayo');
@@ -325,24 +278,13 @@
         function safePlay(audio) {
             if (!audio) return;
             audio.currentTime = 0;
-            audio.play().catch(e => console.warn("Audio play failed:", e));
+            audio.play().catch(e => console.warn(e));
         }
 
         document.getElementById('entry-btn').addEventListener('click', () => {
-            [ikisugiAudio, sodayoAudio, yametekureAudio, yattazeAudio, iiyoAudio, spinAudio].forEach(a => {
-                if (a) {
-                    a.play().then(() => {
-                        a.pause();
-                        a.currentTime = 0;
-                    }).catch(e => console.log("Initial unlock failed"));
-                }
-            });
-            
             const overlay = document.getElementById('entry-overlay');
             overlay.style.opacity = '0';
-            setTimeout(() => {
-                overlay.style.display = 'none';
-            }, 500);
+            setTimeout(() => overlay.style.display = 'none', 500);
         });
 
         function init() {
@@ -358,107 +300,89 @@
         function createSymbol(container, data, isBlur = false) {
             const div = document.createElement('div');
             div.className = `symbol ${isBlur ? 'blur' : ''}`;
-            div.innerHTML = `<img src="${data.src}" alt="${data.name}" onerror="this.src='https://via.placeholder.com/90?text=MISSING'"><span class="symbol-label">${data.name}</span>`;
+            div.innerHTML = `<img src="${data.src}" alt="${data.name}"><span class="symbol-label">${data.name}</span>`;
             container.appendChild(div);
-            return div;
         }
 
         function changeBet(amount) {
             if (isSpinning) return;
             betAmount = amount;
             document.querySelectorAll('.bet-btn').forEach(btn => {
-                const btnAmount = parseInt(btn.getAttribute('data-amount'));
-                btn.classList.toggle('active', btnAmount === betAmount);
+                btn.classList.toggle('active', parseInt(btn.getAttribute('data-amount')) === betAmount);
             });
-            betDisplay.textContent = `CURRENT BET: ${betAmount}`;
+            document.getElementById('bet-display').textContent = `CURRENT BET: ${betAmount}`;
             updateUI();
         }
 
         function getWeightedChar() {
-            let currentPool = [...charData];
-            if (isFever) currentPool.push(feverSymbol);
-            const total = currentPool.reduce((s, c) => s + c.weight, 0);
+            let pool = [...charData];
+            if (isFever) pool.push(feverSymbol);
+            const total = pool.reduce((s, c) => s + c.weight, 0);
             let r = Math.random() * total;
-            for (const c of currentPool) {
+            for (const c of pool) {
                 if (r < c.weight) return c;
                 r -= c.weight;
             }
-            return currentPool[0];
+            return pool[0];
         }
 
         async function startSpin() {
             if (isSpinning || balance < betAmount) return;
 
-            // ボタン画像を spin_2.png (押下状態) に変更
-            spinBtn.style.backgroundImage = "url('spin_2.png')";
-
-            [ikisugiAudio, sodayoAudio, yametekureAudio, yattazeAudio, iiyoAudio].forEach(audio => {
-                if (audio) {
-                    audio.pause();
-                    audio.currentTime = 0;
-                }
-            });
-
             isSpinning = true;
+            spinBtn.style.backgroundImage = SPIN_IMG_ACTIVE; // 押した状態に変更
             balance -= betAmount;
-            updateUI(); 
+            updateUI();
 
             if (spinAudio) {
                 spinAudio.currentTime = 0;
                 spinAudio.play().catch(() => {});
             }
 
-            if (isFever) {
-                msgEl.textContent = 'ｲｷｽｷﾞｨ!!ｲｸｲｸ…';
-                msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-2xl text-yellow-300 italic animate-bounce';
-            } else {
-                msgEl.textContent = 'いいよ！来いよ！（激熱）';
-                msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-xl text-blue-400 italic';
-            }
+            msgEl.textContent = isFever ? 'ｲｷｽｷﾞｨ!!ｲｸｲｸ…' : 'いいよ！来いよ！';
             
-            frameEl.classList.remove('win-active');
             const results = await Promise.all(reelInners.map((reel, i) => animateReel(reel, i)));
             
             if (spinAudio) spinAudio.pause();
-
             evaluate(results);
-            
-            // 全ての演出・判定が終わったらスピン終了、ボタンを spin_1.png に戻す
+
             isSpinning = false;
-            spinBtn.style.backgroundImage = "url('spin_1.png')";
+            spinBtn.style.backgroundImage = SPIN_IMG_NORMAL; // 止まったら戻す
             updateUI();
         }
 
         function animateReel(reel, index) {
             return new Promise(resolve => {
                 const targetChar = getWeightedChar();
-                const dummyCount = 20 + (index * 10);
+                const dummyCount = 30 + (index * 10);
                 const duration = REEL_SPEED[index];
                 const currentHTML = reel.firstElementChild ? reel.firstElementChild.innerHTML : '';
                 reel.innerHTML = '';
+                
                 const startSym = document.createElement('div');
                 startSym.className = 'symbol';
                 startSym.innerHTML = currentHTML;
                 reel.appendChild(startSym);
+
                 for(let i=0; i<dummyCount; i++) {
-                    const randomChar = (isFever && Math.random() < 0.1) ? feverSymbol : charData[Math.floor(Math.random() * charData.length)];
-                    createSymbol(reel, randomChar, true);
+                    createSymbol(reel, charData[Math.floor(Math.random() * charData.length)], true);
                 }
                 createSymbol(reel, targetChar);
-                createSymbol(reel, charData[Math.floor(Math.random() * charData.length)]);
+                createSymbol(reel, charData[0]);
+
                 reel.style.transition = 'none';
                 reel.style.transform = 'translateY(0px)';
                 requestAnimationFrame(() => {
                     reel.style.transition = `transform ${duration}ms cubic-bezier(0.4, 0, 0.2, 1.1)`;
                     reel.style.transform = `translateY(-${(dummyCount + 1) * 150}px)`;
                 });
+
                 setTimeout(() => {
                     reel.style.transition = 'none';
                     reel.style.transform = 'translateY(0px)';
                     reel.innerHTML = '';
                     createSymbol(reel, targetChar);
-                    createSymbol(reel, charData[Math.floor(Math.random() * charData.length)]);
-                    createSymbol(reel, charData[Math.floor(Math.random() * charData.length)]);
+                    createSymbol(reel, charData[0]);
                     resolve(targetChar);
                 }, duration);
             });
@@ -469,43 +393,24 @@
             let win = 0;
 
             if (c1.id === c2.id && c2.id === c3.id) {
-                win = c1.multiplier * betAmount; 
-                if (c1.id === 'logo') {
-                    msgEl.textContent = 'ｲｷｽｷﾞｨ!!!! (神)';
-                    msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-4xl jackpot-text';
-                    triggerFlash();
-                } else {
-                    msgEl.textContent = `や　っ　た　ぜ (+${win})`;
-                    msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-3xl jackpot-text';
-                    triggerFlash();
-                    if (c1.id === 'yjsp') {
-                        safePlay(ikisugiAudio);
-                        if (!isFever) startFever();
-                    } else if (c1.id === 'mur') {
-                        safePlay(sodayoAudio);
-                    } else if (c1.id === 'kmr') {
-                        safePlay(yametekureAudio);
-                    } else if (c1.id === 'kuso') {
-                        safePlay(yattazeAudio);
-                    }
-                }
+                win = c1.multiplier * betAmount;
+                msgEl.textContent = `や　っ　た　ぜ (+${win})`;
+                triggerFlash();
+                if (c1.id === 'yjsp') { safePlay(ikisugiAudio); if (!isFever) startFever(); }
+                else if (c1.id === 'mur') safePlay(sodayoAudio);
+                else if (c1.id === 'kmr') safePlay(yametekureAudio);
+                else if (c1.id === 'kuso') safePlay(yattazeAudio);
+            } else if (results.filter(c => c.id === 'yjsp').length === 2) {
+                win = betAmount * 5;
+                msgEl.textContent = `い　い　よ (+${win})`;
+                safePlay(iiyoAudio);
             } else {
-                const yajuuCount = results.filter(c => c.id === 'yjsp').length;
-                if (yajuuCount === 2) {
-                    win = Math.floor(betAmount * 5); 
-                    msgEl.textContent = `い　い　よ (+${win})`;
-                    msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-lg text-yellow-400';
-                    safePlay(iiyoAudio);
-                } else {
-                    msgEl.textContent = 'ヌッ！ (ハズレ)';
-                    msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-lg text-zinc-400';
-                }
+                msgEl.textContent = 'ヌッ！';
             }
 
             if (win > 0) {
                 balance += win;
                 payoutEl.textContent = win;
-                frameEl.classList.add('win-active');
             }
             if (isFever) {
                 feverRemaining--;
@@ -517,57 +422,27 @@
             isFever = true;
             feverRemaining = 10;
             document.body.classList.add('fever-bg');
-            frameEl.classList.add('fever-active');
-            titleLogo.classList.add('logo-fever'); 
             feverBadge.style.display = 'block';
-            triggerFlash();
         }
 
         function endFever() {
             isFever = false;
             document.body.classList.remove('fever-bg');
-            frameEl.classList.remove('fever-active');
-            titleLogo.classList.remove('logo-fever');
             feverBadge.style.display = 'none';
-            msgEl.textContent = '賢者タイム終了';
         }
 
         function triggerFlash() {
             flashEl.style.opacity = '1';
             setTimeout(() => flashEl.style.opacity = '0', 100);
-            setTimeout(() => {
-                flashEl.style.opacity = '1';
-                setTimeout(() => flashEl.style.opacity = '0', 100);
-            }, 200);
         }
 
         function updateUI() {
             balanceEl.textContent = balance;
             feverRemainingEl.textContent = feverRemaining;
-            document.querySelectorAll('.bet-btn').forEach(btn => {
-                const amount = parseInt(btn.getAttribute('data-amount'));
-                btn.disabled = isSpinning || balance < amount;
-            });
-            if (balance < betAmount && !isSpinning) {
-                spinBtn.disabled = true;
-                msgEl.textContent = '金、暴力、サッカー（終焉）';
-            } else {
-                spinBtn.disabled = isSpinning;
-            }
+            spinBtn.disabled = (balance < betAmount || isSpinning);
         }
 
         spinBtn.addEventListener('click', startSpin);
-        document.getElementById('reset-btn').addEventListener('click', () => {
-            if(isSpinning) return;
-            balance = 1000;
-            payoutEl.textContent = '0';
-            betAmount = 10;
-            endFever();
-            changeBet(10);
-            msgEl.textContent = '再走（リセット完了）';
-            updateUI();
-        });
-
         init();
     </script>
 </body>
