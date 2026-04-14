@@ -34,21 +34,45 @@
 
         #main-layout {
             display: flex;
-            flex-direction: column;
-            align-items: center;
             gap: 20px;
             width: 100%;
             max-width: 800px;
             padding: 10px;
+            transition: all 0.3s ease;
         }
 
-        @media (min-width: 768px) {
-            #main-layout {
-                flex-direction: row;
-                align-items: flex-start;
-                justify-content: center;
-            }
+        /* --- UIモードによる切り替えスタイル --- */
+
+        /* PC用UI (.ui-pc) */
+        .ui-pc #main-layout {
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: center;
         }
+        .ui-pc #side-panel {
+            max-width: 240px;
+            position: sticky;
+            top: 20px;
+        }
+        .ui-pc .reel { height: 150px; width: 110px; }
+        .ui-pc .symbol { height: 150px; }
+        .ui-pc .symbol img { width: 90px; height: 90px; }
+
+        /* スマホ用UI (.ui-mobile) */
+        .ui-mobile #main-layout {
+            flex-direction: column;
+            align-items: center;
+        }
+        .ui-mobile #side-panel {
+            max-width: 400px;
+            position: relative;
+            top: auto;
+        }
+        .ui-mobile .reel { height: 120px; width: 90px; }
+        .ui-mobile .symbol { height: 120px; }
+        .ui-mobile .symbol img { width: 70px; height: 70px; }
+
+        /* ------------------------------------- */
 
         #app-container {
             background-color: rgba(24, 24, 27, 0.9);
@@ -60,22 +84,15 @@
             border-radius: 40px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             flex-shrink: 0;
+            transition: all 0.3s ease;
         }
 
         #side-panel {
             width: 100%;
-            max-width: 400px;
             display: flex;
             flex-direction: column;
             gap: 15px;
-        }
-
-        @media (min-width: 768px) {
-            #side-panel {
-                max-width: 240px;
-                position: sticky;
-                top: 20px;
-            }
+            transition: all 0.3s ease;
         }
 
         .side-card {
@@ -99,18 +116,23 @@
             transition: opacity 0.5s ease-out;
         }
 
+        /* UI選択ラジオボタンのスタイル */
+        .ui-select-label {
+            border: 1px solid transparent;
+        }
+        .ui-select-label:has(input:checked) {
+            background-color: #3f3f46; /* bg-zinc-700 */
+            border-color: #facc15; /* border-yellow-500 */
+            color: #facc15;
+        }
+
         .reel {
-            height: 120px;
-            width: 90px;
             background: rgba(26, 26, 26, 0.9);
             border: 2px solid #333;
             border-radius: 8px;
             overflow: hidden;
             position: relative;
-        }
-
-        @media (min-width: 400px) {
-            .reel { height: 150px; width: 110px; }
+            transition: height 0.3s, width 0.3s;
         }
 
         .reel::after {
@@ -132,24 +154,20 @@
         }
 
         .symbol {
-            height: 120px;
             width: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 5px;
+            transition: height 0.3s;
         }
-
-        @media (min-width: 400px) { .symbol { height: 150px; } }
 
         .symbol img {
-            width: 70px; height: 70px;
             object-fit: contain;
             border-radius: 8px;
+            transition: width 0.3s, height 0.3s;
         }
-
-        @media (min-width: 400px) { .symbol img { width: 90px; height: 90px; } }
 
         .symbol-label {
             font-size: 0.6rem;
@@ -258,14 +276,31 @@
         }
     </style>
 </head>
-<body>
+<body class="ui-mobile"> <!-- デフォルトはJSで設定されます -->
 
     <div id="entry-overlay">
         <img src="./image/真夏の夜のカジノ.png" alt="Logo" class="w-48 mb-6">
         <h1 class="text-xl mb-6 text-yellow-500 italic text-center">24歳、カジノです</h1>
+        
         <button id="entry-btn" class="bg-red-600 hover:bg-red-500 text-white px-10 py-3 rounded-full text-xl font-black shadow-[0_0_20px_red] transition-transform active:scale-95">
             入店する
         </button>
+
+        <!-- UI選択エリア -->
+        <div class="mt-8 flex flex-col items-center">
+            <p class="text-zinc-400 text-sm mb-3 font-bold">プレイ環境を選択してください</p>
+            <div class="flex gap-4 bg-zinc-900 p-2 rounded-xl border border-zinc-700 shadow-inner">
+                <label class="cursor-pointer flex items-center gap-2 text-sm text-white px-4 py-2 rounded-lg ui-select-label hover:bg-zinc-800 transition-colors select-none">
+                    <input type="radio" name="ui-mode" value="mobile" class="accent-yellow-500 w-4 h-4">
+                    📱 スマホ用UI
+                </label>
+                <label class="cursor-pointer flex items-center gap-2 text-sm text-white px-4 py-2 rounded-lg ui-select-label hover:bg-zinc-800 transition-colors select-none">
+                    <input type="radio" name="ui-mode" value="pc" class="accent-yellow-500 w-4 h-4">
+                    💻 PC用UI
+                </label>
+            </div>
+        </div>
+
         <p class="mt-6 text-zinc-500 text-xs italic">※クリックするとBGMがループ再生されます</p>
     </div>
 
@@ -380,6 +415,23 @@
     </div>
 
     <script>
+        // UI選択の初期化処理
+        const uiRadios = document.querySelectorAll('input[name="ui-mode"]');
+        const isPC = window.innerWidth >= 768;
+        
+        document.body.className = isPC ? 'ui-pc' : 'ui-mobile';
+        
+        uiRadios.forEach(radio => {
+            if ((radio.value === 'pc' && isPC) || (radio.value === 'mobile' && !isPC)) {
+                radio.checked = true;
+            }
+            
+            radio.addEventListener('change', (e) => {
+                document.body.className = `ui-${e.target.value}`;
+            });
+        });
+
+        // スロットデータ
         const charData = [
             { id: 'yjsp', name: '野獣先輩', src: './image/yjsp.png', multiplier: 81, weight: 2 },
             { id: 'mur', name: 'MUR', src: './image/mur.png', multiplier: 11, weight: 5 },
@@ -516,7 +568,11 @@
                 const targetChar = getWeightedChar();
                 const dummyCount = 15 + (index * 8);
                 const duration = REEL_SPEED[index];
-                const symHeight = window.innerWidth < 400 ? 120 : 150;
+                
+                // 現在のUIモードに合わせて移動量を計算
+                const isPCMode = document.body.classList.contains('ui-pc');
+                const symHeight = isPCMode ? 150 : 120;
+                
                 const currentHTML = reel.firstElementChild ? reel.firstElementChild.innerHTML : '';
                 reel.innerHTML = '';
                 const startSym = document.createElement('div');
@@ -616,7 +672,7 @@
                 balance += 200;
                 updateUI();
                 openModal("𝕏 共有ボーナス！", `宣伝ありがとうございます！<br>お礼として<span class="text-green-400 font-bold text-lg">200 CREDIT</span>をチャージしました。`);
-                safePlay(audioElements.nasu); // 共有成功時にnasu.wavを再生
+                safePlay(audioElements.nasu);
             }, 500);
         });
 
@@ -649,13 +705,11 @@
         document.getElementById('reset-btn').addEventListener('click', () => {
             if(isSpinning) return;
             balance = 1000; payoutEl.textContent = '0';
-            // 制限ステータスもリセット
             promoUsed = false;
             shareCount = 0;
             shareBtn.disabled = false;
             shareBtn.textContent = "共有して回復する";
             shareCard.classList.remove('disabled');
-            
             endFever(); changeBet(10); init();
         });
 
