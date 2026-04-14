@@ -12,8 +12,9 @@
             font-family: 'M PLUS Rounded 1c', sans-serif;
             background-color: #000;
             color: white;
-            overflow: hidden;
-            touch-action: manipulation;
+            /* スクロールを許可 */
+            overflow-y: auto;
+            touch-action: pan-y;
             transition: background-color 0.5s;
             background-image: url('./image/back.jpg');
             background-size: cover;
@@ -21,8 +22,10 @@
             background-attachment: fixed;
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
+            padding: 20px 0;
         }
 
         .fever-bg {
@@ -30,26 +33,12 @@
             background-blend-mode: overlay;
         }
 
-        /* モバイル対応: 画面が小さい場合に全体を縮小 */
         #app-wrapper {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
             width: 100%;
-            height: 100%;
-        }
-
-        @media (max-width: 480px) {
-            #app-container {
-                transform: scale(0.85);
-                transform-origin: center center;
-            }
-        }
-
-        @media (max-height: 700px) and (max-width: 480px) {
-            #app-container {
-                transform: scale(0.75);
-            }
+            padding: 10px;
         }
 
         #app-container {
@@ -61,6 +50,7 @@
             border: 10px solid #27272a;
             border-radius: 40px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
         }
 
         #entry-overlay {
@@ -230,6 +220,21 @@
         }
 
         input[type="range"] { accent-color: #facc15; }
+
+        /* スクロールバーのカスタマイズ（任意） */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
     </style>
 </head>
 <body>
@@ -304,6 +309,9 @@
 
             <div id="flash-overlay" class="fixed inset-0 pointer-events-none z-50 opacity-0 bg-white transition-opacity duration-100"></div>
         </div>
+        
+        <!-- 下部の余白確保用 -->
+        <div class="h-8"></div>
     </div>
 
     <script>
@@ -322,7 +330,7 @@
         let isSpinning = false;
         let isFever = false;
         let feverRemaining = 0;
-        const REEL_SPEED = [1200, 1600, 2000]; // モバイル向けに少し高速化
+        const REEL_SPEED = [1200, 1600, 2000];
 
         const reelInners = [
             document.getElementById('reel1'),
