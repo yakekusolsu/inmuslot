@@ -287,6 +287,7 @@
     <audio id="audio-yattaze" src="./audio/yattaze.wav"></audio>
     <audio id="audio-iiyo" src="./audio/114514.wav"></audio>
     <audio id="audio-spin" src="./audio/butchipa.wav" loop></audio>
+    <audio id="audio-nasu" src="./audio/nasu.wav"></audio>
 
     <div id="main-layout">
         <!-- 左側：スロット本体 -->
@@ -432,7 +433,8 @@
             yametekure: document.getElementById('audio-yametekure'),
             yattaze: document.getElementById('audio-yattaze'),
             iiyo: document.getElementById('audio-iiyo'),
-            spin: document.getElementById('audio-spin')
+            spin: document.getElementById('audio-spin'),
+            nasu: document.getElementById('audio-nasu')
         };
 
         audioElements.bgm.volume = 0.5;
@@ -611,10 +613,10 @@
             
             setTimeout(() => {
                 shareCount++;
-                balance += 200; // 報酬を200に変更
+                balance += 200;
                 updateUI();
                 openModal("𝕏 共有ボーナス！", `宣伝ありがとうございます！<br>お礼として<span class="text-green-400 font-bold text-lg">200 CREDIT</span>をチャージしました。`);
-                safePlay(audioElements.yattaze);
+                safePlay(audioElements.nasu); // 共有成功時にnasu.wavを再生
             }, 500);
         });
 
