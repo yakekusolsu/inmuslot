@@ -211,7 +211,7 @@
 </head>
 <body class="flex items-center justify-center min-h-screen">
 
-    <!-- 入店オーバーレイ（オーディオ許可用） - 画像パス修正 -->
+    <!-- 入店オーバーレイ（オーディオ許可用） -->
     <div id="entry-overlay">
         <img src="image/真夏の夜のカジノ.png" alt="Logo" class="w-64 mb-8">
         <h1 class="text-2xl mb-8 text-yellow-500 italic">24歳、カジノです</h1>
@@ -221,13 +221,13 @@
         <p class="mt-6 text-zinc-500 text-sm italic">※クリックすると音が鳴るようになります</p>
     </div>
 
-    <!-- 音声データの定義 -->
-    <audio id="audio-ikisugi" src="ikisugi.wav" preload="auto"></audio>
-    <audio id="audio-sodayo" src="sodayo.wav" preload="auto"></audio>
-    <audio id="audio-yametekure" src="yametekure.wav" preload="auto"></audio>
-    <audio id="audio-yattaze" src="yattaze.wav" preload="auto"></audio>
-    <audio id="audio-iiyo" src="114514.wav" preload="auto"></audio>
-    <audio id="audio-spin" src="butchipa.wav" preload="auto" loop></audio>
+    <!-- 音声データの定義 (audio/フォルダを参照) -->
+    <audio id="audio-ikisugi" src="audio/ikisugi.wav" preload="auto"></audio>
+    <audio id="audio-sodayo" src="audio/sodayo.wav" preload="auto"></audio>
+    <audio id="audio-yametekure" src="audio/yametekure.wav" preload="auto"></audio>
+    <audio id="audio-yattaze" src="audio/yattaze.wav" preload="auto"></audio>
+    <audio id="audio-iiyo" src="audio/114514.wav" preload="auto"></audio>
+    <audio id="audio-spin" src="audio/butchipa.wav" preload="auto" loop></audio>
 
     <div id="app-container" class="w-full max-w-md p-6 border-[12px] border-zinc-800 rounded-[50px] shadow-2xl relative overflow-hidden">
         
@@ -287,7 +287,7 @@
     </div>
 
     <script>
-        // キャラ画像パスを image/ に修正
+        // キャラ画像パスを image/ に設定
         const charData = [
             { id: 'yjsp', name: '野獣先輩', src: 'image/yjsp.png', multiplier: 81, weight: 2 },
             { id: 'mur', name: 'MUR', src: 'image/mur.png', multiplier: 11, weight: 5 },
@@ -335,6 +335,7 @@
         }
 
         document.getElementById('entry-btn').addEventListener('click', () => {
+            // モバイル等での音声再生制限解除
             [ikisugiAudio, sodayoAudio, yametekureAudio, yattazeAudio, iiyoAudio, spinAudio].forEach(a => {
                 if (a) {
                     a.play().then(() => {
@@ -546,10 +547,12 @@
         function updateUI() {
             balanceEl.textContent = balance;
             feverRemainingEl.textContent = feverRemaining;
+            
             document.querySelectorAll('.bet-btn').forEach(btn => {
                 const amount = parseInt(btn.getAttribute('data-amount'));
                 btn.disabled = isSpinning || balance < amount;
             });
+
             if (balance < betAmount && !isSpinning) {
                 spinBtn.disabled = true;
                 msgEl.textContent = '金、暴力、サッカー（終焉）';
