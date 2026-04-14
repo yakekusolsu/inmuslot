@@ -32,24 +32,60 @@
             background-blend-mode: overlay;
         }
 
-        #app-wrapper {
+        #main-layout {
             display: flex;
             flex-direction: column;
             align-items: center;
+            gap: 20px;
             width: 100%;
+            max-width: 800px;
             padding: 10px;
         }
 
+        /* PC等広い画面では横並びにする */
+        @media (min-width: 768px) {
+            #main-layout {
+                flex-direction: row;
+                align-items: flex-start;
+                justify-content: center;
+            }
+        }
+
         #app-container {
-            background-color: rgba(24, 24, 27, 0.85);
-            backdrop-filter: blur(8px);
+            background-color: rgba(24, 24, 27, 0.9);
+            backdrop-filter: blur(12px);
             width: 100%;
             max-width: 400px;
             padding: 1.5rem;
             border: 10px solid #27272a;
             border-radius: 40px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+
+        #side-panel {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        @media (min-width: 768px) {
+            #side-panel {
+                max-width: 240px;
+                position: sticky;
+                top: 20px;
+            }
+        }
+
+        .side-card {
+            background: rgba(39, 39, 42, 0.8);
+            border: 2px solid #52525b;
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(8px);
         }
 
         #entry-overlay {
@@ -75,21 +111,14 @@
         }
 
         @media (min-width: 400px) {
-            .reel {
-                height: 150px;
-                width: 110px;
-            }
+            .reel { height: 150px; width: 110px; }
         }
 
         .reel::after {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(180deg, 
-                rgba(0,0,0,0.8) 0%, 
-                transparent 25%, 
-                transparent 75%, 
-                rgba(0,0,0,0.8) 100%);
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.8) 100%);
             z-index: 10;
             pointer-events: none;
         }
@@ -110,24 +139,18 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            user-select: none;
             padding: 5px;
         }
 
-        @media (min-width: 400px) {
-            .symbol { height: 150px; }
-        }
+        @media (min-width: 400px) { .symbol { height: 150px; } }
 
         .symbol img {
-            width: 70px;
-            height: 70px;
+            width: 70px; height: 70px;
             object-fit: contain;
             border-radius: 8px;
         }
 
-        @media (min-width: 400px) {
-            .symbol img { width: 90px; height: 90px; }
-        }
+        @media (min-width: 400px) { .symbol img { width: 90px; height: 90px; } }
 
         .symbol-label {
             font-size: 0.6rem;
@@ -174,15 +197,6 @@
         .btn-spin:active:not(:disabled) { transform: scale(0.92) translateY(4px); }
         .btn-spin:disabled { filter: grayscale(1) opacity(0.3); transform: translateY(2px); }
 
-        .jackpot-text { animation: rainbow 1s linear infinite; }
-        @keyframes rainbow {
-            0% { color: #ff0000; }
-            25% { color: #ffff00; }
-            50% { color: #00ff00; }
-            75% { color: #00ffff; }
-            100% { color: #ff00ff; }
-        }
-
         .fever-label {
             position: absolute;
             top: -15px;
@@ -212,24 +226,25 @@
             box-shadow: 0 0 10px #facc15;
         }
 
-        #title-logo {
-            max-width: 220px;
-            height: auto;
-            margin: 0 auto;
-        }
-
-        input[type="range"] { accent-color: #facc15; }
-
-        /* Share Alert Modal Styles */
         #share-modal {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             z-index: 200;
             display: none;
             align-items: center;
             justify-content: center;
             padding: 20px;
+        }
+
+        .share-button-glow {
+            background: linear-gradient(45deg, #000, #1DA1F2);
+            box-shadow: 0 4px 15px rgba(29, 161, 242, 0.4);
+            transition: all 0.3s ease;
+        }
+        .share-button-glow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(29, 161, 242, 0.6);
         }
     </style>
 </head>
@@ -244,25 +259,31 @@
         <p class="mt-6 text-zinc-500 text-xs italic">※クリックするとBGMがループ再生されます</p>
     </div>
 
-    <!-- 共有成功時の通知用モーダル -->
     <div id="share-modal">
-        <div class="bg-zinc-900 border-2 border-yellow-500 p-6 rounded-2xl text-center max-w-xs w-full">
-            <h2 class="text-xl font-bold text-yellow-500 mb-4">𝕏 共有ボーナス！</h2>
-            <p class="text-sm mb-6">宣伝してくれたお礼に、クレジットを2000枚進呈します。</p>
-            <button onclick="closeShareModal()" class="bg-yellow-500 text-black px-6 py-2 rounded-full font-bold">ありがとナス！</button>
+        <div class="bg-zinc-900 border-2 border-yellow-500 p-8 rounded-3xl text-center max-w-sm w-full shadow-[0_0_50px_rgba(234,179,8,0.3)]">
+            <div class="text-5xl mb-4">🙏</div>
+            <h2 class="text-2xl font-bold text-yellow-500 mb-4">𝕏 共有ボーナス！</h2>
+            <p class="text-sm text-zinc-300 mb-8 leading-relaxed">
+                宣伝ありがとうございます！<br>
+                お礼として<span class="text-green-400 font-bold text-lg">2,000 CREDIT</span>をチャージしました。
+            </p>
+            <button onclick="closeShareModal()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-4 rounded-xl font-black text-lg transition-colors shadow-lg">
+                ありがとナス！
+            </button>
         </div>
     </div>
 
-    <audio id="audio-bgm" src="./audio/yaranaika.mp3" preload="auto" loop></audio>
-    <audio id="audio-ikisugi" src="./audio/ikisugi.wav" preload="auto"></audio>
-    <audio id="audio-sodayo" src="./audio/sodayo.wav" preload="auto"></audio>
-    <audio id="audio-yametekure" src="./audio/yametekure.wav" preload="auto"></audio>
-    <audio id="audio-yattaze" src="./audio/yattaze.wav" preload="auto"></audio>
-    <audio id="audio-iiyo" src="./audio/114514.wav" preload="auto"></audio>
-    <audio id="audio-spin" src="./audio/butchipa.wav" preload="auto" loop></audio>
+    <audio id="audio-bgm" src="./audio/yaranaika.mp3" loop></audio>
+    <audio id="audio-ikisugi" src="./audio/ikisugi.wav"></audio>
+    <audio id="audio-sodayo" src="./audio/sodayo.wav"></audio>
+    <audio id="audio-yametekure" src="./audio/yametekure.wav"></audio>
+    <audio id="audio-yattaze" src="./audio/yattaze.wav"></audio>
+    <audio id="audio-iiyo" src="./audio/114514.wav"></audio>
+    <audio id="audio-spin" src="./audio/butchipa.wav" loop></audio>
 
-    <div id="app-wrapper">
-        <div id="app-container" class="relative overflow-hidden">
+    <div id="main-layout">
+        <!-- 左側：スロット本体 -->
+        <div id="app-container" class="relative">
             
             <div class="absolute top-3 right-4 flex flex-col items-center">
                 <span class="text-[7px] text-zinc-500 mb-1">BGM VOL</span>
@@ -292,7 +313,7 @@
                 <button onclick="changeBet(500)" data-amount="500" class="bet-btn flex-1 py-1 rounded-md font-bold">500</button>
             </div>
 
-            <div id="machine-frame" class="bg-black/60 p-2 rounded-2xl border-2 border-zinc-800 flex justify-center gap-1 shadow-2xl transition-all duration-300 relative">
+            <div id="machine-frame" class="bg-black/60 p-2 rounded-2xl border-2 border-zinc-800 flex justify-center gap-1 shadow-2xl relative">
                 <div class="reel"><div id="reel1" class="reel-inner"></div></div>
                 <div class="reel"><div id="reel2" class="reel-inner"></div></div>
                 <div class="reel"><div id="reel3" class="reel-inner"></div></div>
@@ -305,17 +326,38 @@
             <div class="mt-2 flex flex-col gap-4">
                 <button id="spin-btn" class="btn-spin" aria-label="SPIN"></button>
                 <div class="flex justify-between items-center px-1">
-                    <button id="share-btn" class="text-[9px] bg-sky-500/20 text-sky-400 border border-sky-400/30 px-2 py-1 rounded-md hover:bg-sky-500/40 transition-colors">
-                        𝕏 でクレジット回復
-                    </button>
-                    <div id="bet-display" class="text-[10px] font-bold text-zinc-500">BET: 10</div>
-                    <button id="reset-btn" class="text-[9px] text-zinc-600 underline hover:text-zinc-400">
-                        再走（リセット）
-                    </button>
+                    <div id="bet-display" class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">BET: 10</div>
+                    <button id="reset-btn" class="text-[9px] text-zinc-600 underline hover:text-zinc-400">再走（リセット）</button>
                 </div>
             </div>
 
             <div id="flash-overlay" class="fixed inset-0 pointer-events-none z-50 opacity-0 bg-white transition-opacity duration-100"></div>
+        </div>
+
+        <!-- 右側：サイドパネル（共有UI） -->
+        <div id="side-panel">
+            <div class="side-card share-button-glow border-none">
+                <h3 class="text-white text-xs font-black mb-2 flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    X で共有
+                </h3>
+                <p class="text-[10px] text-blue-100 mb-4">
+                    ポストしてクレジットを<br>爆速回復（+2000枚）
+                </p>
+                <button id="share-btn" class="w-full bg-white text-black py-3 rounded-full font-black text-sm shadow-xl active:scale-95 transition-transform">
+                    共有して回復する
+                </button>
+            </div>
+
+            <div class="side-card opacity-60">
+                <h3 class="text-zinc-400 text-[10px] font-bold mb-2">遊び方</h3>
+                <p class="text-[9px] text-zinc-500 leading-relaxed text-left">
+                    ・BET額を選んでスピン！<br>
+                    ・野獣先輩揃いでFEVER突入<br>
+                    ・FEVER中はJackpot出現率UP！<br>
+                    ・破産したら上のボタンで回復ナス
+                </p>
+            </div>
         </div>
     </div>
 
@@ -350,7 +392,6 @@
         const flashEl = document.getElementById('flash-overlay');
         const feverBadge = document.getElementById('fever-count-badge');
         const feverRemainingEl = document.getElementById('fever-remaining');
-        const titleLogo = document.getElementById('title-logo');
         const betDisplay = document.getElementById('bet-display');
         const bgmVolumeSlider = document.getElementById('bgm-volume');
         const shareModal = document.getElementById('share-modal');
@@ -366,9 +407,7 @@
         };
 
         audioElements.bgm.volume = 0.5;
-        bgmVolumeSlider.addEventListener('input', (e) => {
-            audioElements.bgm.volume = e.target.value;
-        });
+        bgmVolumeSlider.addEventListener('input', (e) => audioElements.bgm.volume = e.target.value);
 
         function safePlay(audio) {
             if (!audio) return;
@@ -382,18 +421,9 @@
                 const ctx = new AudioContext();
                 if (ctx.state === 'suspended') await ctx.resume();
             }
-
             Object.values(audioElements).forEach(a => {
-                a.play().then(() => {
-                    if (a !== audioElements.bgm) {
-                        a.pause();
-                        a.currentTime = 0;
-                    } else {
-                        a.loop = true;
-                    }
-                }).catch(() => {});
+                a.play().then(() => { if (a !== audioElements.bgm) { a.pause(); a.currentTime = 0; } else { a.loop = true; } }).catch(() => {});
             });
-            
             const overlay = document.getElementById('entry-overlay');
             overlay.style.opacity = '0';
             setTimeout(() => overlay.style.display = 'none', 500);
@@ -402,9 +432,7 @@
         function init() {
             reelInners.forEach(reel => {
                 reel.innerHTML = '';
-                for (let i = 0; i < 3; i++) {
-                    createSymbol(reel, charData[Math.floor(Math.random() * charData.length)]);
-                }
+                for (let i = 0; i < 3; i++) createSymbol(reel, charData[Math.floor(Math.random() * charData.length)]);
             });
             updateUI();
         }
@@ -432,33 +460,20 @@
             if (isFever) pool.push(feverSymbol);
             const total = pool.reduce((s, c) => s + c.weight, 0);
             let r = Math.random() * total;
-            for (const c of pool) {
-                if (r < c.weight) return c;
-                r -= c.weight;
-            }
+            for (const c of pool) { if (r < c.weight) return c; r -= c.weight; }
             return pool[0];
         }
 
         async function startSpin() {
             if (isSpinning || balance < betAmount) return;
-
-            Object.values(audioElements).forEach(audio => {
-                if (audio !== audioElements.spin && audio !== audioElements.bgm) {
-                    audio.pause(); audio.currentTime = 0;
-                }
-            });
-
+            Object.values(audioElements).forEach(audio => { if (audio !== audioElements.spin && audio !== audioElements.bgm) { audio.pause(); audio.currentTime = 0; } });
             isSpinning = true;
             balance -= betAmount;
             updateUI(); 
             safePlay(audioElements.spin);
-
             msgEl.textContent = isFever ? 'ｲｷｽｷﾞｨ!!ｲｸｲｸ…' : 'いいよ！来いよ！';
-            msgEl.className = `h-12 flex items-center justify-center text-center font-bold text-sm italic ${isFever ? 'text-yellow-300 animate-pulse' : 'text-blue-400'}`;
-            
             frameEl.classList.remove('win-active');
             const results = await Promise.all(reelInners.map((reel, i) => animateReel(reel, i)));
-            
             if (audioElements.spin) audioElements.spin.pause();
             evaluate(results);
             isSpinning = false;
@@ -471,35 +486,29 @@
                 const dummyCount = 15 + (index * 8);
                 const duration = REEL_SPEED[index];
                 const symHeight = window.innerWidth < 400 ? 120 : 150;
-
                 const currentHTML = reel.firstElementChild ? reel.firstElementChild.innerHTML : '';
                 reel.innerHTML = '';
                 const startSym = document.createElement('div');
                 startSym.className = 'symbol';
                 startSym.innerHTML = currentHTML;
                 reel.appendChild(startSym);
-
                 for(let i=0; i<dummyCount; i++) {
-                    const randomChar = (isFever && Math.random() < 0.1) ? feverSymbol : charData[Math.floor(Math.random() * charData.length)];
-                    createSymbol(reel, randomChar, true);
+                    createSymbol(reel, (isFever && Math.random() < 0.1) ? feverSymbol : charData[Math.floor(Math.random() * charData.length)], true);
                 }
                 createSymbol(reel, targetChar);
                 createSymbol(reel, charData[0]);
-
                 reel.style.transition = 'none';
                 reel.style.transform = 'translateY(0px)';
                 requestAnimationFrame(() => {
                     reel.style.transition = `transform ${duration}ms cubic-bezier(0.4, 0, 0.2, 1.1)`;
                     reel.style.transform = `translateY(-${(dummyCount + 1) * symHeight}px)`;
                 });
-
                 setTimeout(() => {
                     reel.style.transition = 'none';
                     reel.style.transform = 'translateY(0px)';
                     reel.innerHTML = '';
                     createSymbol(reel, targetChar);
                     createSymbol(reel, charData[0]);
-                    createSymbol(reel, charData[1]);
                     resolve(targetChar);
                 }, duration);
             });
@@ -508,45 +517,27 @@
         function evaluate(results) {
             const [c1, c2, c3] = results;
             let win = 0;
-
             if (c1.id === c2.id && c2.id === c3.id) {
                 win = c1.multiplier * betAmount; 
                 msgEl.textContent = `や　っ　た　ぜ (+${win})`;
-                msgEl.className = 'h-12 flex items-center justify-center text-center font-bold text-xl jackpot-text';
                 triggerFlash();
-                if (c1.id === 'yjsp') {
-                    safePlay(audioElements.ikisugi);
-                    if (!isFever) startFever();
-                } else if (c1.id === 'mur') safePlay(audioElements.sodayo);
+                if (c1.id === 'yjsp') { safePlay(audioElements.ikisugi); if (!isFever) startFever(); }
+                else if (c1.id === 'mur') safePlay(audioElements.sodayo);
                 else if (c1.id === 'kmr') safePlay(audioElements.yametekure);
                 else if (c1.id === 'kuso') safePlay(audioElements.yattaze);
+            } else if (results.filter(c => c.id === 'yjsp').length === 2) {
+                win = Math.floor(betAmount * 5); 
+                msgEl.textContent = `い　い　よ (+${win})`;
+                safePlay(audioElements.iiyo);
             } else {
-                const yajuuCount = results.filter(c => c.id === 'yjsp').length;
-                if (yajuuCount === 2) {
-                    win = Math.floor(betAmount * 5); 
-                    msgEl.textContent = `い　い　よ (+${win})`;
-                    msgEl.className = 'h-12 flex items-center justify-center text-center font-bold text-sm text-yellow-400';
-                    safePlay(audioElements.iiyo);
-                } else {
-                    msgEl.textContent = 'ヌッ！';
-                    msgEl.className = 'h-12 flex items-center justify-center text-center font-bold text-sm text-zinc-500';
-                }
+                msgEl.textContent = 'ヌッ！';
             }
-
-            if (win > 0) {
-                balance += win;
-                payoutEl.textContent = win;
-                frameEl.classList.add('win-active');
-            }
-            if (isFever) {
-                feverRemaining--;
-                if (feverRemaining <= 0) endFever();
-            }
+            if (win > 0) { balance += win; payoutEl.textContent = win; frameEl.classList.add('win-active'); }
+            if (isFever) { feverRemaining--; if (feverRemaining <= 0) endFever(); }
         }
 
         function startFever() {
-            isFever = true;
-            feverRemaining = 10;
+            isFever = true; feverRemaining = 10;
             document.body.classList.add('fever-bg');
             spinBtn.classList.add('btn-fever'); 
             feverBadge.style.display = 'block';
@@ -559,29 +550,18 @@
             feverBadge.style.display = 'none';
         }
 
-        function triggerFlash() {
-            flashEl.style.opacity = '1';
-            setTimeout(() => flashEl.style.opacity = '0', 100);
-        }
+        function triggerFlash() { flashEl.style.opacity = '1'; setTimeout(() => flashEl.style.opacity = '0', 100); }
 
         function updateUI() {
             balanceEl.textContent = balance;
             feverRemainingEl.textContent = feverRemaining;
-            document.querySelectorAll('.bet-btn').forEach(btn => {
-                btn.disabled = isSpinning || balance < parseInt(btn.getAttribute('data-amount'));
-            });
+            document.querySelectorAll('.bet-btn').forEach(btn => btn.disabled = isSpinning || balance < parseInt(btn.getAttribute('data-amount')));
             spinBtn.disabled = isSpinning || balance < betAmount;
         }
 
-        // Twitter Share Function
         document.getElementById('share-btn').addEventListener('click', () => {
             const text = encodeURIComponent(`真夏の夜のスロット - Tatarigami Edition で遊んでいます！現在の所持金: ${balance}クレジット #淫夢スロット #24歳カジノです`);
-            const url = `https://twitter.com/intent/tweet?text=${text}`;
-            
-            // Twitterを開く
-            window.open(url, '_blank');
-
-            // 報酬を付与（ウィンドウが開かれた時点で付与）
+            window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
             setTimeout(() => {
                 balance += 2000;
                 updateUI();
@@ -590,18 +570,13 @@
             }, 500);
         });
 
-        function closeShareModal() {
-            shareModal.style.display = 'none';
-        }
+        function closeShareModal() { shareModal.style.display = 'none'; }
 
         spinBtn.addEventListener('click', startSpin);
         document.getElementById('reset-btn').addEventListener('click', () => {
             if(isSpinning) return;
-            balance = 1000;
-            payoutEl.textContent = '0';
-            endFever();
-            changeBet(10);
-            init();
+            balance = 1000; payoutEl.textContent = '0';
+            endFever(); changeBet(10); init();
         });
 
         init();
