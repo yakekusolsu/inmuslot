@@ -15,7 +15,8 @@
             overflow: hidden;
             touch-action: manipulation;
             transition: background-color 0.5s;
-            background-image: url('back.jpg');
+            /* 背景画像の設定 - imageフォルダから参照 */
+            background-image: url('image/back.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -109,7 +110,7 @@
             filter: blur(8px) opacity(0.5);
         }
 
-        /* SPINボタンの画像化設定 */
+        /* SPINボタンの画像化設定 - image/フォルダ参照 */
         .btn-spin {
             width: 100%;
             height: 120px;
@@ -121,8 +122,7 @@
             transition: transform 0.1s;
             outline: none;
             background-color: transparent;
-            /* 初期画像を設定。パスが違う場合はここを修正してください */
-            background-image: url('spin_1.png');
+            background-image: url('image/spin_1.png');
         }
 
         .btn-spin:active:not(:disabled) {
@@ -171,14 +171,22 @@
 </head>
 <body class="flex items-center justify-center min-h-screen">
 
-    <!-- 画像のプリロード用（非表示） -->
+    <!-- 画像のプリロード用（非表示） - 全て image/ フォルダ参照 -->
     <div style="display:none;">
-        <img src="spin_1.png">
-        <img src="spin_2.png">
+        <img src="image/spin_1.png">
+        <img src="image/spin_2.png">
+        <img src="image/back.jpg">
+        <img src="image/真夏の夜のカジノ.png">
+        <img src="image/yjsp.png">
+        <img src="image/mur.png">
+        <img src="image/kmr.png">
+        <img src="image/inmukun.png">
+        <img src="image/kuso.png">
+        <img src="image/logo.png">
     </div>
 
     <div id="entry-overlay">
-        <img src="真夏の夜のカジノ.png" alt="Logo" class="w-64 mb-8">
+        <img src="image/真夏の夜のカジノ.png" alt="Logo" class="w-64 mb-8">
         <h1 class="text-2xl mb-8 text-yellow-500 italic">24歳、カジノです</h1>
         <button id="entry-btn" class="bg-red-600 hover:bg-red-500 text-white px-12 py-4 rounded-full text-2xl font-black shadow-[0_0_20px_red]">
             入店する
@@ -194,7 +202,7 @@
 
     <div id="app-container" class="w-full max-w-md p-6 border-[12px] border-zinc-800 rounded-[50px] shadow-2xl relative">
         <div class="text-center mt-6 mb-8 flex justify-center">
-            <img id="title-logo" src="真夏の夜のカジノ.png" alt="真夏の夜のカジノ">
+            <img id="title-logo" src="image/真夏の夜のカジノ.png" alt="真夏の夜のカジノ">
         </div>
 
         <div class="grid grid-cols-2 gap-4 mb-6">
@@ -237,19 +245,20 @@
     </div>
 
     <script>
+        // キャラクター画像パスを image/ フォルダに変更
         const charData = [
-            { id: 'yjsp', name: '野獣先輩', src: 'yjsp.png', multiplier: 81, weight: 2 },
-            { id: 'mur', name: 'MUR', src: 'mur.png', multiplier: 11, weight: 5 },
-            { id: 'kmr', name: 'KMR', src: 'kmr.png', multiplier: 5, weight: 10 },
-            { id: 'inmukun', name: '淫夢くん', src: 'inmukun.png', multiplier: 2, weight: 15 },
-            { id: 'kuso', name: '変態糞親父', src: 'kuso.png', multiplier: 3, weight: 25 }
+            { id: 'yjsp', name: '野獣先輩', src: 'image/yjsp.png', multiplier: 81, weight: 2 },
+            { id: 'mur', name: 'MUR', src: 'image/mur.png', multiplier: 11, weight: 5 },
+            { id: 'kmr', name: 'KMR', src: 'image/kmr.png', multiplier: 5, weight: 10 },
+            { id: 'inmukun', name: '淫夢くん', src: 'image/inmukun.png', multiplier: 2, weight: 15 },
+            { id: 'kuso', name: '変態糞親父', src: 'image/kuso.png', multiplier: 3, weight: 25 }
         ];
 
-        const feverSymbol = { id: 'logo', name: 'JackPot', src: 'logo.png', multiplier: 1145, weight: 1 };
+        const feverSymbol = { id: 'logo', name: 'JackPot', src: 'image/logo.png', multiplier: 1145, weight: 1 };
 
-        // 画像のファイル名。もしフォルダに入っているなら 'image/spin_1.png' のように書き換えてください。
-        const SPIN_IMG_NORMAL = "url('spin_1.png')";
-        const SPIN_IMG_ACTIVE = "url('spin_2.png')";
+        // SPINボタン画像パスを image/ フォルダに変更
+        const SPIN_IMG_NORMAL = "url('image/spin_1.png')";
+        const SPIN_IMG_ACTIVE = "url('image/spin_2.png')";
 
         let balance = 1000;
         let betAmount = 10;
@@ -444,6 +453,9 @@
 
         spinBtn.addEventListener('click', startSpin);
         init();
+    </script>
+</body>
+</html>
     </script>
 </body>
 </html>
