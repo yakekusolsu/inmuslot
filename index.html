@@ -203,6 +203,8 @@
     <audio id="audio-sodayo" src="audio/sodayo.wav" preload="auto"></audio>
     <audio id="audio-yametekure" src="audio/yametekure.wav" preload="auto"></audio>
     <audio id="audio-yattaze" src="audio/yattaze.wav" preload="auto"></audio>
+    <!-- リール回転音（ループ） -->
+    <audio id="audio-spin" src="audio/butchipa.wav" preload="auto" loop></audio>
 
     <div id="app-container" class="w-full max-w-md p-6 border-[12px] border-zinc-800 rounded-[50px] shadow-2xl relative overflow-hidden">
         
@@ -213,7 +215,7 @@
             <div id="led-3" class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_green] animate-pulse" style="animation-delay: 0.4s"></div>
         </div>
 
-        <!-- タイトルロゴ画像 - imageフォルダから参照 -->
+        <!-- タイトルロゴ画像 -->
         <div class="text-center mt-6 mb-8 flex justify-center">
             <img id="title-logo" src="image/真夏の夜のカジノ.png" alt="真夏の夜のカジノ">
         </div>
@@ -268,7 +270,6 @@
     </div>
 
     <script>
-        // キャラクターデータ - imageフォルダから参照するように修正
         const charData = [
             { id: 'yjsp', name: '野獣先輩', src: 'image/yjsp.png', multiplier: 81, weight: 2 },
             { id: 'mur', name: 'MUR', src: 'image/mur.png', multiplier: 11, weight: 5 },
@@ -307,6 +308,7 @@
         const sodayoAudio = document.getElementById('audio-sodayo');
         const yametekureAudio = document.getElementById('audio-yametekure');
         const yattazeAudio = document.getElementById('audio-yattaze');
+        const spinAudio = document.getElementById('audio-spin');
 
         function init() {
             reelInners.forEach(reel => {
@@ -356,6 +358,7 @@
         async function startSpin() {
             if (isSpinning || balance < betAmount) return;
 
+            // 当たり演出等の停止
             [ikisugiAudio, sodayoAudio, yametekureAudio, yattazeAudio].forEach(audio => {
                 audio.pause();
                 audio.currentTime = 0;
@@ -364,6 +367,10 @@
             isSpinning = true;
             balance -= betAmount;
             updateUI(); 
+
+            // 回転音のループ開始
+            spinAudio.currentTime = 0;
+            spinAudio.play();
 
             if (isFever) {
                 msgEl.textContent = 'ｲｷｽｷﾞｨ!!ｲｸｲｸ…';
@@ -377,6 +384,9 @@
 
             const results = await Promise.all(reelInners.map((reel, i) => animateReel(reel, i)));
             
+            // 全てのリールが止まったら回転音を止める
+            spinAudio.pause();
+
             evaluate(results);
             isSpinning = false;
             updateUI();
