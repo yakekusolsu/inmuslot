@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INMU SLOT MACHINE - Tatarigami Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800&display=swap');
+        
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            background-color: #000;
+            color: white;
+            overflow: hidden;
+            touch-action: manipulation;
+            transition: background-color 0.5s;
+            /* 背景画像の設定 */
+            background-image: url('back.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        .fever-bg {
+            background-color: rgba(69, 10, 10, 0.6) !important;
+            background-blend-mode: overlay;
+        }
+
+        /* アプリ全体のコンテナを少し透過させる */
+        #app-container {
+            background-color: rgba(24, 24, 27, 0.85);
+            backdrop-filter: blur(8px);
+        }
+
+        .reel {
+            height: 150px;
+            width: 110px;
+            background: rgba(26, 26, 26, 0.9);
+            border: 2px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .reel::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(180deg, 
+                rgba(0,0,0,0.8) 0%, 
+                transparent 25%, 
+                transparent 75%, 
+                rgba(0,0,0,0.8) 100%);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .reel-inner {
+            position: absolute;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            will-change: transform;
+        }
+
+        .symbol {
+            height: 150px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            padding: 5px;
+        }
+
+        .symbol img {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .symbol-label {
+            font-size: 0.7rem;
+            margin-top: 5px;
+            font-weight: bold;
+            color: #ddd;
+            background: rgba(0,0,0,0.6);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .blur {
+            filter: blur(8px) opacity(0.5);
+        }
+
+        @keyframes win-glow {
+            0% { box-shadow: 0 0 10px #facc15; border-color: #facc15; }
+            100% { box-shadow: 0 0 40px #f59e0b; border-color: #ffffff; }
+        }
+
+        @keyframes fever-glow {
+            0% { box-shadow: 0 0 20px #ef4444; border-color: #ef4444; }
+            100% { box-shadow: 0 0 50px #ff0000; border-color: #fde047; }
+        }
+
+        .win-active {
+            animation: win-glow 0.2s ease-in-out infinite alternate;
+        }
+
+        .fever-active {
+            animation: fever-glow 0.1s ease-in-out infinite alternate !important;
+        }
+
+        .btn-spin {
+            background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+            box-shadow: 0 8px 0 #7f1d1d, 0 15px 20px rgba(0,0,0,0.5);
+            transition: all 0.1s;
+        }
+
+        .btn-fever {
+            background: linear-gradient(180deg, #facc15 0%, #a16207 100%) !important;
+            box-shadow: 0 8px 0 #713f12, 0 15px 20px rgba(0,0,0,0.5) !important;
+            border-top-color: #fef08a !important;
+        }
+
+        .btn-spin:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #7f1d1d;
+        }
+
+        .btn-spin:disabled {
+            filter: grayscale(1);
+            opacity: 0.5;
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #333;
+        }
+
+        .jackpot-text {
+            animation: rainbow 1s linear infinite;
+        }
+
+        @keyframes rainbow {
+            0% { color: #ff0000; }
+            20% { color: #ffff00; }
+            40% { color: #00ff00; }
+            60% { color: #00ffff; }
+            80% { color: #0000ff; }
+            100% { color: #ff00ff; }
+        }
+
+        .fever-label {
+            position: absolute;
+            top: -20px;
+            right: -10px;
+            background: red;
+            color: white;
+            padding: 2px 10px;
+            font-size: 12px;
+            border-radius: 20px;
+            transform: rotate(15deg);
+            box-shadow: 0 0 10px red;
+            z-index: 20;
+            display: none;
+        }
+
+        .bet-btn {
+            background: rgba(39, 39, 42, 0.8);
+            border: 2px solid #3f3f46;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .bet-btn.active {
+            background: #facc15;
+            color: black;
+            border-color: #ffffff;
+            box-shadow: 0 0 10px #facc15;
+        }
+        .bet-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.3;
+        }
+
+        #title-logo {
+            max-width: 280px;
+            height: auto;
+            margin: 0 auto;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
+            transition: filter 0.3s;
+        }
+        .logo-fever {
+            filter: drop-shadow(0 0 15px #ff0000) !important;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+    <!-- 音声データの定義 -->
+    <audio id="audio-ikisugi" src="ikisugi.wav" preload="auto"></audio>
+    <audio id="audio-sodayo" src="sodayo.wav" preload="auto"></audio>
+    <audio id="audio-yametekure" src="yametekure.wav" preload="auto"></audio>
+    <audio id="audio-yattaze" src="yattaze.wav" preload="auto"></audio>
+
+    <div id="app-container" class="w-full max-w-md p-6 border-[12px] border-zinc-800 rounded-[50px] shadow-2xl relative overflow-hidden">
+        
+        <!-- LED装飾 -->
+        <div class="absolute top-4 left-1/2 -translate-x-1/2 flex gap-4">
+            <div id="led-1" class="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_red] animate-pulse"></div>
+            <div id="led-2" class="w-3 h-3 rounded-full bg-yellow-500 shadow-[0_0_10px_yellow] animate-pulse" style="animation-delay: 0.2s"></div>
+            <div id="led-3" class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_green] animate-pulse" style="animation-delay: 0.4s"></div>
+        </div>
+
+        <!-- タイトルロゴ画像 -->
+        <div class="text-center mt-6 mb-8 flex justify-center">
+            <img id="title-logo" src="真夏の夜のカジノ.png" alt="真夏の夜のカジノ">
+        </div>
+
+        <!-- ステータス表示 -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-black/80 rounded-xl p-3 border-2 border-zinc-700 shadow-inner">
+                <span class="text-[10px] text-zinc-500 block uppercase">Credit</span>
+                <span id="balance" class="text-3xl font-mono text-green-500">1000</span>
+            </div>
+            <div class="bg-black/80 rounded-xl p-3 border-2 border-zinc-700 shadow-inner text-right relative">
+                <div id="fever-count-badge" class="fever-label">FEVER: <span id="fever-remaining">0</span></div>
+                <span class="text-[10px] text-zinc-500 block uppercase">Payout</span>
+                <span id="payout" class="text-3xl font-mono text-yellow-500">0</span>
+            </div>
+        </div>
+
+        <!-- BETボタンエリア -->
+        <div class="flex justify-between gap-2 mb-6">
+            <button onclick="changeBet(10)" data-amount="10" class="bet-btn active flex-1 py-1 rounded-lg text-xs font-bold uppercase">Bet 10</button>
+            <button onclick="changeBet(50)" data-amount="50" class="bet-btn flex-1 py-1 rounded-lg text-xs font-bold uppercase">Bet 50</button>
+            <button onclick="changeBet(100)" data-amount="100" class="bet-btn flex-1 py-1 rounded-lg text-xs font-bold uppercase">Bet 100</button>
+            <button onclick="changeBet(500)" data-amount="500" class="bet-btn flex-1 py-1 rounded-lg text-xs font-bold uppercase">Bet 500</button>
+        </div>
+
+        <!-- スロットマシンフレーム -->
+        <div id="machine-frame" class="bg-black/60 p-4 rounded-3xl border-4 border-black flex justify-center gap-2 shadow-2xl transition-all duration-300 relative">
+            <div class="reel"><div id="reel1" class="reel-inner"></div></div>
+            <div class="reel"><div id="reel2" class="reel-inner"></div></div>
+            <div class="reel"><div id="reel3" class="reel-inner"></div></div>
+        </div>
+
+        <!-- メッセージ -->
+        <div id="msg" class="h-16 flex items-center justify-center text-center font-bold text-xl text-zinc-300 italic">
+            やってやりましょうよ！
+        </div>
+
+        <!-- スピン & 操作ボタン -->
+        <div class="mt-4 flex flex-col gap-6">
+            <button id="spin-btn" class="btn-spin py-8 rounded-[30px] text-4xl font-black italic text-white uppercase tracking-widest border-t-4 border-red-400">
+                SPIN
+            </button>
+            <div class="flex justify-between items-center px-2">
+                <div id="bet-display" class="text-xs font-bold text-zinc-400">CURRENT BET: 10</div>
+                <button id="reset-btn" class="text-[10px] text-zinc-500 underline hover:text-zinc-300">
+                    再走（リセット）
+                </button>
+            </div>
+        </div>
+
+        <div id="flash-overlay" class="fixed inset-0 pointer-events-none z-50 opacity-0 bg-white transition-opacity duration-100"></div>
+    </div>
+
+    <script>
+        const charData = [
+            { id: 'yjsp', name: '野獣先輩', src: 'yjsp.png', multiplier: 81, weight: 2 },
+            { id: 'mur', name: 'MUR', src: 'mur.png', multiplier: 11, weight: 5 },
+            { id: 'kmr', name: 'KMR', src: 'kmr.png', multiplier: 5, weight: 10 },
+            { id: 'inmukun', name: '淫夢くん', src: 'inmukun.png', multiplier: 2, weight: 15 },
+            { id: 'kuso', name: '変態糞親父', src: 'kuso.png', multiplier: 3, weight: 25 } // 糞親父にも配当を追加（3倍）
+        ];
+
+        const feverSymbol = { id: 'logo', name: 'JackPot', src: 'logo.png', multiplier: 1145, weight: 1 };
+
+        let balance = 1000;
+        let betAmount = 10;
+        let isSpinning = false;
+        let isFever = false;
+        let feverRemaining = 0;
+        const REEL_SPEED = [1500, 2000, 2500];
+
+        const reelInners = [
+            document.getElementById('reel1'),
+            document.getElementById('reel2'),
+            document.getElementById('reel3')
+        ];
+        const balanceEl = document.getElementById('balance');
+        const payoutEl = document.getElementById('payout');
+        const spinBtn = document.getElementById('spin-btn');
+        const msgEl = document.getElementById('msg');
+        const frameEl = document.getElementById('machine-frame');
+        const flashEl = document.getElementById('flash-overlay');
+        const feverBadge = document.getElementById('fever-count-badge');
+        const feverRemainingEl = document.getElementById('fever-remaining');
+        const titleLogo = document.getElementById('title-logo');
+        const betDisplay = document.getElementById('bet-display');
+        
+        // 音声要素
+        const ikisugiAudio = document.getElementById('audio-ikisugi');
+        const sodayoAudio = document.getElementById('audio-sodayo');
+        const yametekureAudio = document.getElementById('audio-yametekure');
+        const yattazeAudio = document.getElementById('audio-yattaze');
+
+        function init() {
+            reelInners.forEach(reel => {
+                reel.innerHTML = '';
+                for (let i = 0; i < 3; i++) {
+                    createSymbol(reel, charData[Math.floor(Math.random() * charData.length)]);
+                }
+            });
+            updateUI();
+        }
+
+        function createSymbol(container, data, isBlur = false) {
+            const div = document.createElement('div');
+            div.className = `symbol ${isBlur ? 'blur' : ''}`;
+            div.innerHTML = `<img src="${data.src}" alt="${data.name}" onerror="this.src='https://via.placeholder.com/90?text=MISSING'"><span class="symbol-label">${data.name}</span>`;
+            container.appendChild(div);
+            return div;
+        }
+
+        function changeBet(amount) {
+            if (isSpinning) return;
+            betAmount = amount;
+            
+            document.querySelectorAll('.bet-btn').forEach(btn => {
+                const btnAmount = parseInt(btn.getAttribute('data-amount'));
+                btn.classList.toggle('active', btnAmount === betAmount);
+            });
+            betDisplay.textContent = `CURRENT BET: ${betAmount}`;
+            updateUI();
+        }
+
+        function getWeightedChar() {
+            let currentPool = [...charData];
+            if (isFever) {
+                currentPool.push(feverSymbol);
+            }
+
+            const total = currentPool.reduce((s, c) => s + c.weight, 0);
+            let r = Math.random() * total;
+            for (const c of currentPool) {
+                if (r < c.weight) return c;
+                r -= c.weight;
+            }
+            return currentPool[0];
+        }
+
+        async function startSpin() {
+            if (isSpinning || balance < betAmount) return;
+
+            // 再生中の全音声を停止
+            [ikisugiAudio, sodayoAudio, yametekureAudio, yattazeAudio].forEach(audio => {
+                audio.pause();
+                audio.currentTime = 0;
+            });
+
+            isSpinning = true;
+            balance -= betAmount;
+            updateUI(); 
+
+            if (isFever) {
+                msgEl.textContent = 'ｲｷｽｷﾞｨ!!ｲｸｲｸ…';
+                msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-2xl text-yellow-300 italic animate-bounce';
+            } else {
+                msgEl.textContent = 'い　い　よ　（激熱）';
+                msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-xl text-blue-400 italic';
+            }
+            
+            frameEl.classList.remove('win-active');
+
+            const results = await Promise.all(reelInners.map((reel, i) => animateReel(reel, i)));
+            
+            evaluate(results);
+            isSpinning = false;
+            updateUI();
+        }
+
+        function animateReel(reel, index) {
+            return new Promise(resolve => {
+                const targetChar = getWeightedChar();
+                const dummyCount = 20 + (index * 10);
+                const duration = REEL_SPEED[index];
+
+                const currentHTML = reel.firstElementChild.innerHTML;
+                reel.innerHTML = '';
+                
+                const startSym = document.createElement('div');
+                startSym.className = 'symbol';
+                startSym.innerHTML = currentHTML;
+                reel.appendChild(startSym);
+
+                for(let i=0; i<dummyCount; i++) {
+                    const randomChar = (isFever && Math.random() < 0.1) ? feverSymbol : charData[Math.floor(Math.random() * charData.length)];
+                    createSymbol(reel, randomChar, true);
+                }
+
+                createSymbol(reel, targetChar);
+                createSymbol(reel, charData[Math.floor(Math.random() * charData.length)]);
+
+                reel.style.transition = 'none';
+                reel.style.transform = 'translateY(0px)';
+
+                requestAnimationFrame(() => {
+                    reel.style.transition = `transform ${duration}ms cubic-bezier(0.4, 0, 0.2, 1.1)`;
+                    reel.style.transform = `translateY(-${(dummyCount + 1) * 150}px)`;
+                });
+
+                setTimeout(() => {
+                    reel.style.transition = 'none';
+                    reel.style.transform = 'translateY(0px)';
+                    reel.innerHTML = '';
+                    createSymbol(reel, targetChar);
+                    createSymbol(reel, charData[Math.floor(Math.random() * charData.length)]);
+                    createSymbol(reel, charData[Math.floor(Math.random() * charData.length)]);
+                    resolve(targetChar);
+                }, duration);
+            });
+        }
+
+        function evaluate(results) {
+            const [c1, c2, c3] = results;
+            let win = 0;
+
+            if (c1.id === c2.id && c2.id === c3.id) {
+                win = c1.multiplier * betAmount; 
+                
+                if (c1.id === 'logo') {
+                    msgEl.textContent = 'ｲｷｽｷﾞｨ!!!! (神)';
+                    msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-4xl jackpot-text';
+                    triggerFlash();
+                } else {
+                    msgEl.textContent = `や　っ　た　ぜ (+${win})`;
+                    msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-3xl jackpot-text';
+                    triggerFlash();
+                    
+                    // 特定キャラ揃い時の演出
+                    if (c1.id === 'yjsp') {
+                        ikisugiAudio.play();
+                        if (!isFever) startFever();
+                    } else if (c1.id === 'mur') {
+                        sodayoAudio.play();
+                    } else if (c1.id === 'kmr') {
+                        yametekureAudio.play();
+                    } else if (c1.id === 'kuso') {
+                        yattazeAudio.play();
+                    }
+                }
+            } else {
+                const yajuuCount = results.filter(c => c.id === 'yjsp').length;
+                if (yajuuCount === 2) {
+                    win = Math.floor(betAmount * 5); 
+                    msgEl.textContent = `い　い　よ (+${win})`;
+                    msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-lg text-yellow-400';
+                } else {
+                    msgEl.textContent = 'ヌッ！ (ハズレ)';
+                    msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-lg text-zinc-400';
+                }
+            }
+
+            if (win > 0) {
+                balance += win;
+                payoutEl.textContent = win;
+                frameEl.classList.add('win-active');
+            }
+
+            if (isFever) {
+                feverRemaining--;
+                if (feverRemaining <= 0) {
+                    endFever();
+                }
+            }
+        }
+
+        function startFever() {
+            isFever = true;
+            feverRemaining = 10;
+            document.body.classList.add('fever-bg');
+            frameEl.classList.add('fever-active');
+            spinBtn.classList.add('btn-fever');
+            titleLogo.classList.add('logo-fever'); 
+            feverBadge.style.display = 'block';
+            triggerFlash();
+        }
+
+        function endFever() {
+            isFever = false;
+            document.body.classList.remove('fever-bg');
+            frameEl.classList.remove('fever-active');
+            spinBtn.classList.remove('btn-fever');
+            titleLogo.classList.remove('logo-fever');
+            feverBadge.style.display = 'none';
+            msgEl.textContent = '賢者タイム終了';
+        }
+
+        function triggerFlash() {
+            flashEl.style.opacity = '1';
+            setTimeout(() => flashEl.style.opacity = '0', 100);
+            setTimeout(() => {
+                flashEl.style.opacity = '1';
+                setTimeout(() => flashEl.style.opacity = '0', 100);
+            }, 200);
+        }
+
+        function updateUI() {
+            balanceEl.textContent = balance;
+            feverRemainingEl.textContent = feverRemaining;
+            
+            document.querySelectorAll('.bet-btn').forEach(btn => {
+                const amount = parseInt(btn.getAttribute('data-amount'));
+                btn.disabled = isSpinning || balance < amount;
+            });
+
+            if (balance < betAmount && !isSpinning) {
+                spinBtn.disabled = true;
+                msgEl.textContent = '金、暴力、サッカー（終焉）';
+            } else {
+                spinBtn.disabled = isSpinning;
+            }
+        }
+
+        spinBtn.addEventListener('click', startSpin);
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            if(isSpinning) return;
+            balance = 1000;
+            payoutEl.textContent = '0';
+            betAmount = 10;
+            endFever();
+            changeBet(10);
+            msgEl.textContent = '再走（リセット完了）';
+            updateUI();
+        });
+
+        init();
+    </script>
+</body>
+</html>
