@@ -126,31 +126,34 @@
             animation: fever-glow 0.1s ease-in-out infinite alternate !important;
         }
 
-        /* 復活：立体的なスピンボタン */
+        /* 画像を使用したスピンボタンのスタイル */
         .btn-spin {
-            background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
-            box-shadow: 0 8px 0 #7f1d1d, 0 15px 20px rgba(0,0,0,0.5);
-            transition: all 0.1s;
-            border-top: 4px solid #f87171;
+            width: 100%;
+            height: 100px;
+            background-image: url('./image/spin_1.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: transparent;
+            border: none;
+            transition: transform 0.1s, filter 0.1s;
+            cursor: pointer;
+            outline: none;
         }
 
-        /* 復活：FEVER時の黄金ボタン */
+        /* FEVER時の画像切り替え */
         .btn-fever {
-            background: linear-gradient(180deg, #facc15 0%, #a16207 100%) !important;
-            box-shadow: 0 8px 0 #713f12, 0 15px 20px rgba(0,0,0,0.5) !important;
-            border-top: 4px solid #fef08a !important;
+            background-image: url('./image/spin_2.png') !important;
+            filter: drop-shadow(0 0 10px #facc15);
         }
 
         .btn-spin:active:not(:disabled) {
-            transform: translateY(4px);
-            box-shadow: 0 4px 0 #7f1d1d;
+            transform: scale(0.95) translateY(4px);
         }
 
         .btn-spin:disabled {
-            filter: grayscale(1);
-            opacity: 0.5;
-            transform: translateY(4px);
-            box-shadow: 0 4px 0 #333;
+            filter: grayscale(1) opacity(0.5);
+            cursor: not-allowed;
         }
 
         .jackpot-text {
@@ -271,9 +274,8 @@
         </div>
 
         <div class="mt-4 flex flex-col gap-6">
-            <button id="spin-btn" class="btn-spin py-8 rounded-[30px] text-4xl font-black italic text-white uppercase tracking-widest">
-                SPIN
-            </button>
+            <!-- スピンボタンを画像ベースに変更 -->
+            <button id="spin-btn" class="btn-spin" aria-label="SPIN"></button>
             <div class="flex justify-between items-center px-2">
                 <div id="bet-display" class="text-xs font-bold text-zinc-400">CURRENT BET: 10</div>
                 <button id="reset-btn" class="text-[10px] text-zinc-500 underline hover:text-zinc-300">
@@ -528,7 +530,7 @@
             feverRemaining = 10;
             document.body.classList.add('fever-bg');
             frameEl.classList.add('fever-active');
-            spinBtn.classList.add('btn-fever'); // FEVER時黄金ボタン
+            spinBtn.classList.add('btn-fever'); 
             titleLogo.classList.add('logo-fever'); 
             feverBadge.style.display = 'block';
             triggerFlash();
