@@ -228,10 +228,10 @@
         <button id="entry-btn" class="bg-red-600 hover:bg-red-500 text-white px-12 py-4 rounded-full text-2xl font-black shadow-[0_0_20px_red] transition-transform active:scale-95">
             入店する
         </button>
-        <p class="mt-6 text-zinc-500 text-sm italic">※クリックすると音が鳴るようになります</p>
+        <p class="mt-6 text-zinc-500 text-sm italic">※クリックするとBGMがループ再生されます</p>
     </div>
 
-    <!-- 音声定義: .wav から .mp3 (yaranaika.mp3) に変更 -->
+    <!-- 音声定義: loop属性を付与 -->
     <audio id="audio-bgm" src="./audio/yaranaika.mp3" preload="auto" loop></audio>
     <audio id="audio-ikisugi" src="./audio/ikisugi.wav" preload="auto"></audio>
     <audio id="audio-sodayo" src="./audio/sodayo.wav" preload="auto"></audio>
@@ -344,6 +344,7 @@
             spin: document.getElementById('audio-spin')
         };
 
+        // 初期ボリューム
         audioElements.bgm.volume = 0.5;
 
         bgmVolumeSlider.addEventListener('input', (e) => {
@@ -361,6 +362,7 @@
             }
         }
 
+        // 入店ボタンでオーディオをアンロック
         document.getElementById('entry-btn').addEventListener('click', async () => {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             if (AudioContext) {
@@ -370,16 +372,19 @@
                 }
             }
 
+            // 全オーディオを再生・即停止させてアンロック
             Object.values(audioElements).forEach(a => {
                 if (a) {
-                    if (a === audioElements.bgm) {
-                        a.play().catch(e => console.log("BGM play failed", e));
-                    } else {
-                        a.play().then(() => {
+                    a.play().then(() => {
+                        if (a !== audioElements.bgm) {
                             a.pause();
                             a.currentTime = 0;
-                        }).catch(e => console.log("Unlock failed", e));
-                    }
+                        } else {
+                            // BGMだけはループ再生を開始
+                            a.loop = true;
+                            console.log("BGM Loop Started");
+                        }
+                    }).catch(e => console.log("Unlock failed", e));
                 }
             });
             
@@ -434,6 +439,7 @@
         async function startSpin() {
             if (isSpinning || balance < betAmount) return;
 
+            // 回転音以外のSEを停止
             Object.values(audioElements).forEach(audio => {
                 if (audio && audio !== audioElements.spin && audio !== audioElements.bgm) {
                     audio.pause();
