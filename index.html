@@ -15,8 +15,8 @@
             overflow: hidden;
             touch-action: manipulation;
             transition: background-color 0.5s;
-            /* 背景画像の設定 */
-            background-image: url('back.jpg');
+            /* 背景画像の設定 - imageフォルダから参照 */
+            background-image: url('image/back.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -28,7 +28,6 @@
             background-blend-mode: overlay;
         }
 
-        /* アプリ全体のコンテナを少し透過させる */
         #app-container {
             background-color: rgba(24, 24, 27, 0.85);
             backdrop-filter: blur(8px);
@@ -199,11 +198,11 @@
 </head>
 <body class="flex items-center justify-center min-h-screen">
 
-    <!-- 音声データの定義 -->
-    <audio id="audio-ikisugi" src="ikisugi.wav" preload="auto"></audio>
-    <audio id="audio-sodayo" src="sodayo.wav" preload="auto"></audio>
-    <audio id="audio-yametekure" src="yametekure.wav" preload="auto"></audio>
-    <audio id="audio-yattaze" src="yattaze.wav" preload="auto"></audio>
+    <!-- 音声データの定義 - audioフォルダから参照 -->
+    <audio id="audio-ikisugi" src="audio/ikisugi.wav" preload="auto"></audio>
+    <audio id="audio-sodayo" src="audio/sodayo.wav" preload="auto"></audio>
+    <audio id="audio-yametekure" src="audio/yametekure.wav" preload="auto"></audio>
+    <audio id="audio-yattaze" src="audio/yattaze.wav" preload="auto"></audio>
 
     <div id="app-container" class="w-full max-w-md p-6 border-[12px] border-zinc-800 rounded-[50px] shadow-2xl relative overflow-hidden">
         
@@ -214,9 +213,9 @@
             <div id="led-3" class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_green] animate-pulse" style="animation-delay: 0.4s"></div>
         </div>
 
-        <!-- タイトルロゴ画像 -->
+        <!-- タイトルロゴ画像 - imageフォルダから参照 -->
         <div class="text-center mt-6 mb-8 flex justify-center">
-            <img id="title-logo" src="真夏の夜のカジノ.png" alt="真夏の夜のカジノ">
+            <img id="title-logo" src="image/真夏の夜のカジノ.png" alt="真夏の夜のカジノ">
         </div>
 
         <!-- ステータス表示 -->
@@ -269,15 +268,16 @@
     </div>
 
     <script>
+        // キャラクターデータ - imageフォルダから参照するように修正
         const charData = [
-            { id: 'yjsp', name: '野獣先輩', src: 'yjsp.png', multiplier: 81, weight: 2 },
-            { id: 'mur', name: 'MUR', src: 'mur.png', multiplier: 11, weight: 5 },
-            { id: 'kmr', name: 'KMR', src: 'kmr.png', multiplier: 5, weight: 10 },
-            { id: 'inmukun', name: '淫夢くん', src: 'inmukun.png', multiplier: 2, weight: 15 },
-            { id: 'kuso', name: '変態糞親父', src: 'kuso.png', multiplier: 3, weight: 25 } // 糞親父にも配当を追加（3倍）
+            { id: 'yjsp', name: '野獣先輩', src: 'image/yjsp.png', multiplier: 81, weight: 2 },
+            { id: 'mur', name: 'MUR', src: 'image/mur.png', multiplier: 11, weight: 5 },
+            { id: 'kmr', name: 'KMR', src: 'image/kmr.png', multiplier: 5, weight: 10 },
+            { id: 'inmukun', name: '淫夢くん', src: 'image/inmukun.png', multiplier: 2, weight: 15 },
+            { id: 'kuso', name: '変態糞親父', src: 'image/kuso.png', multiplier: 3, weight: 25 }
         ];
 
-        const feverSymbol = { id: 'logo', name: 'JackPot', src: 'logo.png', multiplier: 1145, weight: 1 };
+        const feverSymbol = { id: 'logo', name: 'JackPot', src: 'image/logo.png', multiplier: 1145, weight: 1 };
 
         let balance = 1000;
         let betAmount = 10;
@@ -356,7 +356,6 @@
         async function startSpin() {
             if (isSpinning || balance < betAmount) return;
 
-            // 再生中の全音声を停止
             [ikisugiAudio, sodayoAudio, yametekureAudio, yattazeAudio].forEach(audio => {
                 audio.pause();
                 audio.currentTime = 0;
@@ -441,7 +440,6 @@
                     msgEl.className = 'h-16 flex items-center justify-center text-center font-bold text-3xl jackpot-text';
                     triggerFlash();
                     
-                    // 特定キャラ揃い時の演出
                     if (c1.id === 'yjsp') {
                         ikisugiAudio.play();
                         if (!isFever) startFever();
