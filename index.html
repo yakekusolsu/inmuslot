@@ -41,38 +41,18 @@
             transition: all 0.3s ease;
         }
 
-        /* --- UIモードによる切り替えスタイル --- */
-
-        /* PC用UI (.ui-pc) */
-        .ui-pc #main-layout {
-            flex-direction: row;
-            align-items: flex-start;
-            justify-content: center;
-        }
-        .ui-pc #side-panel {
-            max-width: 240px;
-            position: sticky;
-            top: 20px;
-        }
+        /* UIモード切替 */
+        .ui-pc #main-layout { flex-direction: row; align-items: flex-start; justify-content: center; }
+        .ui-pc #side-panel { max-width: 240px; position: sticky; top: 20px; display: flex; }
         .ui-pc .reel { height: 150px; width: 110px; }
         .ui-pc .symbol { height: 150px; }
         .ui-pc .symbol img { width: 90px; height: 90px; }
 
-        /* スマホ用UI (.ui-mobile) */
-        .ui-mobile #main-layout {
-            flex-direction: column;
-            align-items: center;
-        }
-        .ui-mobile #side-panel {
-            max-width: 400px;
-            position: relative;
-            top: auto;
-        }
+        .ui-mobile #main-layout { flex-direction: column; align-items: center; }
+        .ui-mobile #side-panel { max-width: 400px; position: relative; }
         .ui-mobile .reel { height: 120px; width: 90px; }
         .ui-mobile .symbol { height: 120px; }
         .ui-mobile .symbol img { width: 70px; height: 70px; }
-
-        /* ------------------------------------- */
 
         #app-container {
             background-color: rgba(24, 24, 27, 0.9);
@@ -84,16 +64,9 @@
             border-radius: 40px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             flex-shrink: 0;
-            transition: all 0.3s ease;
         }
 
-        #side-panel {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            transition: all 0.3s ease;
-        }
+        #side-panel { width: 100%; display: flex; flex-direction: column; gap: 15px; }
 
         .side-card {
             background: rgba(39, 39, 42, 0.8);
@@ -105,26 +78,11 @@
         }
 
         #entry-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.5s ease-out;
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95);
+            z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* UI選択ラジオボタンのスタイル */
-        .ui-select-label {
-            border: 1px solid transparent;
-        }
-        .ui-select-label:has(input:checked) {
-            background-color: #3f3f46; /* bg-zinc-700 */
-            border-color: #facc15; /* border-yellow-500 */
-            color: #facc15;
-        }
+        .ui-select-label:has(input:checked) { background-color: #3f3f46; border-color: #facc15; color: #facc15; }
 
         .reel {
             background: rgba(26, 26, 26, 0.9);
@@ -132,52 +90,19 @@
             border-radius: 8px;
             overflow: hidden;
             position: relative;
-            transition: height 0.3s, width 0.3s;
         }
 
         .reel::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            content: ''; position: absolute; inset: 0;
             background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.8) 100%);
-            z-index: 10;
-            pointer-events: none;
+            z-index: 10; pointer-events: none;
         }
 
-        .reel-inner {
-            position: absolute;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            will-change: transform;
-        }
+        .reel-inner { position: absolute; width: 100%; display: flex; flex-direction: column; align-items: center; }
 
-        .symbol {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 5px;
-            transition: height 0.3s;
-        }
-
-        .symbol img {
-            object-fit: contain;
-            border-radius: 8px;
-            transition: width 0.3s, height 0.3s;
-        }
-
-        .symbol-label {
-            font-size: 0.6rem;
-            margin-top: 4px;
-            font-weight: bold;
-            color: #ddd;
-            background: rgba(0,0,0,0.6);
-            padding: 1px 4px;
-            border-radius: 3px;
-        }
+        .symbol { width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 5px; }
+        .symbol img { object-fit: contain; border-radius: 8px; }
+        .symbol-label { font-size: 0.6rem; margin-top: 4px; color: #ddd; background: rgba(0,0,0,0.6); padding: 1px 4px; border-radius: 3px; }
 
         .blur { filter: blur(4px) opacity(0.6); }
 
@@ -185,137 +110,68 @@
             0% { box-shadow: 0 0 10px #facc15; border-color: #facc15; }
             100% { box-shadow: 0 0 40px #f59e0b; border-color: #ffffff; }
         }
-
         .win-active { animation: win-glow 0.2s ease-in-out infinite alternate; }
 
         .btn-spin {
-            display: block;
-            width: 100%;
-            max-width: 280px;
-            height: 100px;
-            margin: 0 auto;
-            background-image: url('./image/spin_1.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-color: transparent;
-            border: none;
-            transition: transform 0.05s ease-out;
-            cursor: pointer;
-            outline: none;
-            -webkit-tap-highlight-color: transparent;
+            display: block; width: 100%; max-width: 280px; height: 100px; margin: 0 auto;
+            background-image: url('./image/spin_1.png'); background-size: contain; background-repeat: no-repeat;
+            background-position: center; background-color: transparent; border: none; cursor: pointer;
         }
-
-        .btn-fever {
-            background-image: url('./image/spin_2.png') !important;
-            filter: drop-shadow(0 0 15px #facc15);
-        }
-
-        .btn-spin:active:not(:disabled) { transform: scale(0.92) translateY(4px); }
-        .btn-spin:disabled { filter: grayscale(1) opacity(0.3); transform: translateY(2px); }
+        .btn-fever { background-image: url('./image/spin_2.png') !important; filter: drop-shadow(0 0 15px #facc15); }
+        .btn-spin:active:not(:disabled) { transform: scale(0.92); }
+        .btn-spin:disabled { filter: grayscale(1) opacity(0.3); }
 
         .fever-label {
-            position: absolute;
-            top: -15px;
-            right: -5px;
-            background: red;
-            color: white;
-            padding: 2px 8px;
-            font-size: 10px;
-            border-radius: 20px;
-            transform: rotate(15deg);
-            box-shadow: 0 0 10px red;
-            z-index: 20;
-            display: none;
+            position: absolute; top: -15px; right: -5px; background: red; color: white;
+            padding: 2px 8px; font-size: 10px; border-radius: 20px; transform: rotate(15deg);
+            box-shadow: 0 0 10px red; z-index: 20; display: none;
         }
 
-        .bet-btn {
-            background: rgba(39, 39, 42, 0.8);
-            border: 2px solid #3f3f46;
-            transition: all 0.2s;
-            cursor: pointer;
-            font-size: 10px;
-        }
-        .bet-btn.active {
-            background: #facc15;
-            color: black;
-            border-color: #ffffff;
-            box-shadow: 0 0 10px #facc15;
-        }
+        .bet-btn { background: rgba(39, 39, 42, 0.8); border: 2px solid #3f3f46; cursor: pointer; font-size: 10px; padding: 4px; }
+        .bet-btn.active { background: #facc15; color: black; border-color: #ffffff; box-shadow: 0 0 10px #facc15; }
 
         #share-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            z-index: 200;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200;
+            display: none; align-items: center; justify-content: center; padding: 20px;
         }
 
-        .share-button-glow {
-            background: linear-gradient(45deg, #000, #1DA1F2);
-            box-shadow: 0 4px 15px rgba(29, 161, 242, 0.4);
-            transition: all 0.3s ease;
-        }
-        .share-button-glow:hover:not(.disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(29, 161, 242, 0.6);
-        }
-        .share-button-glow.disabled {
-            filter: grayscale(1);
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: #27272a;
-        }
+        .share-button-glow { background: linear-gradient(45deg, #000, #1DA1F2); box-shadow: 0 4px 15px rgba(29, 161, 242, 0.4); }
 
         #promo-input::placeholder {
             color: #52525b;
             font-size: 0.75rem;
         }
+
+        #debug-panel { display: none; border: 2px dashed #facc15; background: rgba(254, 240, 138, 0.1); }
     </style>
 </head>
-<body class="ui-mobile"> <!-- デフォルトはJSで設定されます -->
+<body class="ui-mobile">
 
     <div id="entry-overlay">
         <img src="./image/真夏の夜のカジノ.png" alt="Logo" class="w-48 mb-6">
         <h1 class="text-xl mb-6 text-yellow-500 italic text-center">24歳、カジノです</h1>
-        
-        <button id="entry-btn" class="bg-red-600 hover:bg-red-500 text-white px-10 py-3 rounded-full text-xl font-black shadow-[0_0_20px_red] transition-transform active:scale-95">
-            入店する
-        </button>
-
-        <!-- UI選択エリア -->
+        <button id="entry-btn" class="bg-red-600 hover:bg-red-500 text-white px-10 py-3 rounded-full text-xl font-black shadow-[0_0_20px_red]">入店する</button>
         <div class="mt-8 flex flex-col items-center">
-            <p class="text-zinc-400 text-sm mb-3 font-bold">プレイ環境を選択してください</p>
-            <div class="flex gap-4 bg-zinc-900 p-2 rounded-xl border border-zinc-700 shadow-inner">
-                <label class="cursor-pointer flex items-center gap-2 text-sm text-white px-4 py-2 rounded-lg ui-select-label hover:bg-zinc-800 transition-colors select-none">
-                    <input type="radio" name="ui-mode" value="mobile" class="accent-yellow-500 w-4 h-4">
-                    📱 スマホ用UI
-                </label>
-                <label class="cursor-pointer flex items-center gap-2 text-sm text-white px-4 py-2 rounded-lg ui-select-label hover:bg-zinc-800 transition-colors select-none">
-                    <input type="radio" name="ui-mode" value="pc" class="accent-yellow-500 w-4 h-4">
-                    💻 PC用UI
-                </label>
+            <p class="text-zinc-400 text-sm mb-3 font-bold">プレイ環境を選択</p>
+            <div class="flex gap-4 bg-zinc-900 p-2 rounded-xl border border-zinc-700">
+                <label class="cursor-pointer flex items-center gap-2 text-sm text-white px-4 py-2 rounded-lg ui-select-label"><input type="radio" name="ui-mode" value="mobile" checked>📱 スマホ</label>
+                <label class="cursor-pointer flex items-center gap-2 text-sm text-white px-4 py-2 rounded-lg ui-select-label"><input type="radio" name="ui-mode" value="pc">💻 PC</label>
             </div>
         </div>
-
-        <p class="mt-6 text-zinc-500 text-xs italic">※クリックするとBGMがループ再生されます</p>
     </div>
 
+    <!-- 共有用モーダル -->
     <div id="share-modal">
-        <div class="bg-zinc-900 border-2 border-yellow-500 p-8 rounded-3xl text-center max-w-sm w-full shadow-[0_0_50px_rgba(234,179,8,0.3)]">
+        <div class="bg-zinc-900 border-2 border-yellow-500 p-8 rounded-3xl text-center max-w-sm w-full">
             <div id="modal-icon" class="text-5xl mb-4">🙏</div>
-            <h2 id="modal-title" class="text-2xl font-bold text-yellow-500 mb-4">𝕏 共有ボーナス！</h2>
-            <div id="modal-desc" class="text-sm text-zinc-300 mb-8 leading-relaxed"></div>
-            <button onclick="closeShareModal()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-4 rounded-xl font-black text-lg transition-colors shadow-lg">
-                ありがとナス！
-            </button>
+            <h2 id="modal-title" class="text-2xl font-bold text-yellow-500 mb-4">共有ボーナス！</h2>
+            <p id="modal-desc" class="text-sm text-zinc-300 mb-8">𝕏でポストしてクレジットを回復しました！</p>
+            <button onclick="closeShareModal()" class="w-full bg-yellow-500 text-black py-4 rounded-xl font-black">ありがとナス！</button>
         </div>
     </div>
 
     <audio id="audio-bgm" src="./audio/yaranaika.mp3" loop></audio>
+    <audio id="audio-fever" src="./audio/4545.mp3" loop></audio>
     <audio id="audio-ikisugi" src="./audio/ikisugi.wav"></audio>
     <audio id="audio-sodayo" src="./audio/sodayo.wav"></audio>
     <audio id="audio-yametekure" src="./audio/yametekure.wav"></audio>
@@ -325,23 +181,20 @@
     <audio id="audio-nasu" src="./audio/nasu.wav"></audio>
 
     <div id="main-layout">
-        <!-- 左側：スロット本体 -->
         <div id="app-container" class="relative">
             <div class="absolute top-3 right-4 flex flex-col items-center">
-                <span class="text-[7px] text-zinc-500 mb-1">BGM VOL</span>
-                <input type="range" id="bgm-volume" min="0" max="1" step="0.01" value="0.5" class="w-16 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer">
+                <span class="text-[7px] text-zinc-500 mb-1">VOL</span>
+                <input type="range" id="bgm-volume" min="0" max="1" step="0.01" value="0.5" class="w-16 h-1 bg-zinc-700 rounded-lg appearance-none">
             </div>
 
-            <div class="text-center mt-4 mb-4 flex justify-center">
-                <img id="title-logo" src="./image/真夏の夜のカジノ.png" alt="真夏の夜のカジノ">
-            </div>
+            <div class="text-center mt-4 mb-4 flex justify-center"><img id="title-logo" src="./image/真夏の夜のカジノ.png" alt="Logo"></div>
 
             <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="bg-black/80 rounded-xl p-2 border-2 border-zinc-700 shadow-inner">
+                <div class="bg-black/80 rounded-xl p-2 border-2 border-zinc-700">
                     <span class="text-[8px] text-zinc-500 block uppercase">Credit</span>
                     <span id="balance" class="text-2xl font-mono text-green-500">1000</span>
                 </div>
-                <div class="bg-black/80 rounded-xl p-2 border-2 border-zinc-700 shadow-inner text-right relative">
+                <div class="bg-black/80 rounded-xl p-2 border-2 border-zinc-700 text-right relative">
                     <div id="fever-count-badge" class="fever-label">FEVER: <span id="fever-remaining">0</span></div>
                     <span class="text-[8px] text-zinc-500 block uppercase">Payout</span>
                     <span id="payout" class="text-2xl font-mono text-yellow-500">0</span>
@@ -349,47 +202,35 @@
             </div>
 
             <div class="flex justify-between gap-1 mb-4">
-                <button onclick="changeBet(10)" data-amount="10" class="bet-btn active flex-1 py-1 rounded-md font-bold">10</button>
-                <button onclick="changeBet(50)" data-amount="50" class="bet-btn flex-1 py-1 rounded-md font-bold">50</button>
-                <button onclick="changeBet(100)" data-amount="100" class="bet-btn flex-1 py-1 rounded-md font-bold">100</button>
-                <button onclick="changeBet(500)" data-amount="500" class="bet-btn flex-1 py-1 rounded-md font-bold">500</button>
+                <button onclick="changeBet(10)" data-amount="10" class="bet-btn active flex-1 rounded-md font-bold">10</button>
+                <button onclick="changeBet(50)" data-amount="50" class="bet-btn flex-1 rounded-md font-bold">50</button>
+                <button onclick="changeBet(100)" data-amount="100" class="bet-btn flex-1 rounded-md font-bold">100</button>
+                <button onclick="changeBet(500)" data-amount="500" class="bet-btn flex-1 rounded-md font-bold">500</button>
             </div>
 
-            <div id="machine-frame" class="bg-black/60 p-2 rounded-2xl border-2 border-zinc-800 flex justify-center gap-1 shadow-2xl relative">
+            <div id="machine-frame" class="bg-black/60 p-2 rounded-2xl border-2 border-zinc-800 flex justify-center gap-1">
                 <div class="reel"><div id="reel1" class="reel-inner"></div></div>
                 <div class="reel"><div id="reel2" class="reel-inner"></div></div>
                 <div class="reel"><div id="reel3" class="reel-inner"></div></div>
             </div>
 
-            <div id="msg" class="h-12 flex items-center justify-center text-center font-bold text-sm text-zinc-300 italic">
-                やってやりましょうよ！
-            </div>
+            <div id="msg" class="h-12 flex items-center justify-center text-center font-bold text-sm text-zinc-300 italic">やってやりましょうよ！</div>
 
             <div class="mt-2 flex flex-col gap-4">
-                <button id="spin-btn" class="btn-spin" aria-label="SPIN"></button>
+                <button id="spin-btn" class="btn-spin"></button>
                 <div class="flex justify-between items-center px-1">
-                    <div id="bet-display" class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">BET: 10</div>
-                    <button id="reset-btn" class="text-[9px] text-zinc-600 underline hover:text-zinc-400">再走（リセット）</button>
+                    <div id="bet-display" class="text-[10px] font-bold text-zinc-500 uppercase">BET: 10</div>
+                    <button id="reset-btn" class="text-[9px] text-zinc-600 underline">再走（リセット）</button>
                 </div>
             </div>
-
             <div id="flash-overlay" class="fixed inset-0 pointer-events-none z-50 opacity-0 bg-white transition-opacity duration-100"></div>
         </div>
 
-        <!-- 右側：サイドパネル -->
         <div id="side-panel">
             <div id="share-card" class="side-card share-button-glow border-none">
-                <h3 class="text-white text-xs font-black mb-2 flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                    X で共有
-                </h3>
-                <p class="text-[10px] text-blue-100 mb-4 leading-tight">
-                    ポストしてクレジットを<br>回復（+200枚）<br>
-                    <span id="share-remaining-label" class="text-[9px] opacity-70">残り: 10回</span>
-                </p>
-                <button id="share-btn" class="w-full bg-white text-black py-3 rounded-full font-black text-sm shadow-xl active:scale-95 transition-transform">
-                    共有して回復する
-                </button>
+                <h3 class="text-white text-xs font-black mb-2">𝕏 で共有</h3>
+                <p class="text-[10px] text-blue-100 mb-4">ポストしてクレジットを回復（+200枚）<br><span id="share-remaining-label" class="text-[9px] opacity-70">残り: 10回</span></p>
+                <button id="share-btn" class="w-full bg-white text-black py-3 rounded-full font-black text-sm">共有して回復する</button>
             </div>
 
             <!-- プロモコード入力バー -->
@@ -402,9 +243,16 @@
                 <p id="promo-error" class="text-[8px] text-red-500 mt-2 opacity-0">使用済みか無効なコードです</p>
             </div>
 
+            <!-- デバッグモードパネル -->
+            <div id="debug-panel" class="side-card">
+                <h3 class="text-yellow-500 text-[10px] font-bold mb-3 uppercase">Developer Debug</h3>
+                <button id="force-fever-btn" class="w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded-lg font-black text-[10px] transition-all border-b-4 border-red-800 active:border-b-0 active:translate-y-1">強制フィーバー起動</button>
+                <p class="text-[8px] text-zinc-400 mt-2">デバッグモード有効</p>
+            </div>
+
             <div class="side-card opacity-60">
                 <h3 class="text-zinc-400 text-[10px] font-bold mb-2">遊び方</h3>
-                <div class="text-[9px] text-zinc-500 leading-relaxed text-left">
+                <div class="text-[9px] text-zinc-500 text-left">
                     ・BET額を選んでスピン！<br>
                     ・野獣先輩揃いでFEVER突入<br>
                     ・FEVER中はJackpot出現率UP！<br>
@@ -415,7 +263,7 @@
     </div>
 
     <script>
-        // UI選択の初期化処理
+        // UI切替
         const uiRadios = document.querySelectorAll('input[name="ui-mode"]');
         const isPC = window.innerWidth >= 768;
         
@@ -425,10 +273,24 @@
             if ((radio.value === 'pc' && isPC) || (radio.value === 'mobile' && !isPC)) {
                 radio.checked = true;
             }
-            
             radio.addEventListener('change', (e) => {
                 document.body.className = `ui-${e.target.value}`;
             });
+        });
+
+        // デバッグモード(Shift + Space)
+        let debugMode = false;
+        window.addEventListener('keydown', e => {
+            if (e.shiftKey && e.code === 'Space') {
+                e.preventDefault();
+                debugMode = !debugMode;
+                document.getElementById('debug-panel').style.display = debugMode ? 'block' : 'none';
+                if(debugMode) {
+                    document.body.className = 'ui-pc';
+                    const pcRadio = document.querySelector('input[value="pc"]');
+                    if (pcRadio) pcRadio.checked = true;
+                }
+            }
         });
 
         // スロットデータ
@@ -480,6 +342,7 @@
         
         const audioElements = {
             bgm: document.getElementById('audio-bgm'),
+            fever: document.getElementById('audio-fever'),
             ikisugi: document.getElementById('audio-ikisugi'),
             sodayo: document.getElementById('audio-sodayo'),
             yametekure: document.getElementById('audio-yametekure'),
@@ -490,7 +353,12 @@
         };
 
         audioElements.bgm.volume = 0.5;
-        bgmVolumeSlider.addEventListener('input', (e) => audioElements.bgm.volume = e.target.value);
+        if(audioElements.fever) audioElements.fever.volume = 0.5;
+        
+        bgmVolumeSlider.addEventListener('input', (e) => {
+            audioElements.bgm.volume = e.target.value;
+            audioElements.fever.volume = e.target.value;
+        });
 
         function safePlay(audio) {
             if (!audio) return;
@@ -504,9 +372,20 @@
                 const ctx = new AudioContext();
                 if (ctx.state === 'suspended') await ctx.resume();
             }
+            
             Object.values(audioElements).forEach(a => {
-                a.play().then(() => { if (a !== audioElements.bgm) { a.pause(); a.currentTime = 0; } else { a.loop = true; } }).catch(() => {});
+                a.play().then(() => { 
+                    if (a !== audioElements.bgm && a !== audioElements.fever) { 
+                        a.pause(); a.currentTime = 0; 
+                    } else if (a === audioElements.bgm) {
+                        a.loop = true;
+                    } else if (a === audioElements.fever) {
+                        a.loop = true;
+                        a.pause(); a.currentTime = 0;
+                    }
+                }).catch(() => {});
             });
+            
             const overlay = document.getElementById('entry-overlay');
             overlay.style.opacity = '0';
             setTimeout(() => overlay.style.display = 'none', 500);
@@ -549,7 +428,11 @@
 
         async function startSpin() {
             if (isSpinning || balance < betAmount) return;
-            Object.values(audioElements).forEach(audio => { if (audio !== audioElements.spin && audio !== audioElements.bgm) { audio.pause(); audio.currentTime = 0; } });
+            Object.values(audioElements).forEach(audio => { 
+                if (audio !== audioElements.spin && audio !== audioElements.bgm && audio !== audioElements.fever) { 
+                    audio.pause(); audio.currentTime = 0; 
+                } 
+            });
             isSpinning = true;
             balance -= betAmount;
             updateUI(); 
@@ -569,7 +452,6 @@
                 const dummyCount = 15 + (index * 8);
                 const duration = REEL_SPEED[index];
                 
-                // 現在のUIモードに合わせて移動量を計算
                 const isPCMode = document.body.classList.contains('ui-pc');
                 const symHeight = isPCMode ? 150 : 120;
                 
@@ -608,7 +490,10 @@
                 win = c1.multiplier * betAmount; 
                 msgEl.textContent = `や　っ　た　ぜ (+${win})`;
                 triggerFlash();
-                if (c1.id === 'yjsp') { safePlay(audioElements.ikisugi); if (!isFever) startFever(); }
+                if (c1.id === 'yjsp') { 
+                    safePlay(audioElements.ikisugi); 
+                    if (!isFever) startFever(); 
+                }
                 else if (c1.id === 'mur') safePlay(audioElements.sodayo);
                 else if (c1.id === 'kmr') safePlay(audioElements.yametekure);
                 else if (c1.id === 'kuso') safePlay(audioElements.yattaze);
@@ -619,8 +504,12 @@
             } else {
                 msgEl.textContent = 'ヌッ！';
             }
+            
             if (win > 0) { balance += win; payoutEl.textContent = win; frameEl.classList.add('win-active'); }
-            if (isFever) { feverRemaining--; if (feverRemaining <= 0) endFever(); }
+            if (isFever) { 
+                feverRemaining--; 
+                if (feverRemaining <= 0) endFever(); 
+            }
         }
 
         function startFever() {
@@ -628,6 +517,10 @@
             document.body.classList.add('fever-bg');
             spinBtn.classList.add('btn-fever'); 
             feverBadge.style.display = 'block';
+            
+            audioElements.bgm.pause();
+            audioElements.fever.currentTime = 0;
+            audioElements.fever.play().catch(()=>{});
         }
 
         function endFever() {
@@ -635,6 +528,9 @@
             document.body.classList.remove('fever-bg');
             spinBtn.classList.remove('btn-fever');
             feverBadge.style.display = 'none';
+            
+            audioElements.fever.pause();
+            audioElements.bgm.play().catch(()=>{});
         }
 
         function triggerFlash() { flashEl.style.opacity = '1'; setTimeout(() => flashEl.style.opacity = '0', 100); }
@@ -645,7 +541,6 @@
             document.querySelectorAll('.bet-btn').forEach(btn => btn.disabled = isSpinning || balance < parseInt(btn.getAttribute('data-amount')));
             spinBtn.disabled = isSpinning || balance < betAmount;
             
-            // 共有ボタンの状態更新
             shareLabel.textContent = `残り: ${MAX_SHARE - shareCount}回`;
             if (shareCount >= MAX_SHARE) {
                 shareBtn.disabled = true;
@@ -660,6 +555,14 @@
             document.getElementById('modal-icon').textContent = icon;
             shareModal.style.display = 'flex';
         }
+
+        document.getElementById('force-fever-btn').addEventListener('click', () => {
+            if(!isFever) { 
+                startFever(); 
+                msgEl.textContent = 'デバッグ：強制起動！'; 
+                safePlay(audioElements.ikisugi); 
+            }
+        });
 
         shareBtn.addEventListener('click', () => {
             if (shareCount >= MAX_SHARE) return;
