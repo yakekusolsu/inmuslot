@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>INMU SLOT MACHINE - Oshiru Edition</title>
+    <title>INMU SLOT MACHINE - Oshiru & KBTIT</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800&display=swap');
@@ -12,7 +12,7 @@
             font-family: 'M PLUS Rounded 1c', sans-serif;
             background-color: #000;
             color: white;
-            overflow-y: auto;
+            overflow-x: hidden;
             touch-action: pan-y;
             transition: all 0.5s;
             background-image: url('./image/back.jpg');
@@ -27,48 +27,13 @@
             padding: 20px 0;
         }
 
-        /* Fever Mode Styles */
-        .fever-bg {
-            background-color: rgba(69, 10, 10, 0.6) !important;
-            background-blend-mode: overlay;
-        }
-
-        /* Oshiru (Dirty Juice) Mode Styles */
-        .oshiru-bg {
-            background-color: rgba(69, 40, 10, 0.8) !important; /* 汚汁ブラウン */
-            background-blend-mode: multiply;
-            filter: sepia(0.5) contrast(1.2);
-        }
-        .oshiru-bg #app-container {
-            border-color: #78350f !important;
-            box-shadow: 0 0 50px #92400e;
-        }
-        .oshiru-bg .reel {
-            background: rgba(45, 20, 5, 0.9);
-            border-color: #92400e;
-        }
-
-        #main-layout {
-            display: flex;
-            gap: 20px;
-            width: 100%;
-            max-width: 800px;
-            padding: 10px;
-            transition: all 0.3s ease;
-        }
-
-        /* UI Mode Toggle */
+        /* Mode Styles */
+        .fever-bg { background-color: rgba(69, 10, 10, 0.6) !important; background-blend-mode: overlay; }
+        .oshiru-bg { background-color: rgba(69, 40, 10, 0.8) !important; background-blend-mode: multiply; filter: sepia(0.3) contrast(1.1); }
+        
+        #main-layout { display: flex; gap: 20px; width: 100%; max-width: 800px; padding: 10px; transition: all 0.3s ease; position: relative; z-index: 10; }
         .ui-pc #main-layout { flex-direction: row; align-items: flex-start; justify-content: center; }
-        .ui-pc #side-panel { max-width: 240px; position: sticky; top: 20px; display: flex; }
-        .ui-pc .reel { height: 150px; width: 110px; }
-        .ui-pc .symbol { height: 150px; }
-        .ui-pc .symbol img { width: 90px; height: 90px; }
-
         .ui-mobile #main-layout { flex-direction: column; align-items: center; }
-        .ui-mobile #side-panel { max-width: 400px; position: relative; }
-        .ui-mobile .reel { height: 120px; width: 90px; }
-        .ui-mobile .symbol { height: 120px; }
-        .ui-mobile .symbol img { width: 70px; height: 70px; }
 
         #app-container {
             background-color: rgba(24, 24, 27, 0.9);
@@ -83,141 +48,59 @@
             transition: all 0.5s;
         }
 
-        #side-panel { width: 100%; display: flex; flex-direction: column; gap: 15px; }
+        /* Reel Layout */
+        .reel { background: rgba(26, 26, 26, 0.9); border: 2px solid #333; border-radius: 8px; overflow: hidden; position: relative; width: 90px; height: 120px; }
+        .ui-pc .reel { width: 110px; height: 150px; }
+        .reel-inner { position: absolute; width: 100%; }
+        .symbol { width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 5px; height: 120px; }
+        .ui-pc .symbol { height: 150px; }
+        .symbol img { width: 70px; height: 70px; object-fit: contain; }
+        .ui-pc .symbol img { width: 90px; height: 90px; }
 
-        .side-card {
-            background: rgba(39, 39, 42, 0.8);
-            border: 2px solid #52525b;
-            border-radius: 20px;
-            padding: 1.5rem;
-            text-align: center;
-            backdrop-filter: blur(8px);
+        /* KBTIT Falling Gimmick */
+        .kbtit-falling {
+            position: fixed;
+            z-index: 100;
+            width: 100px;
+            height: 100px;
+            cursor: pointer;
+            user-select: none;
+            filter: drop-shadow(0 0 15px rgba(255,255,255,0.3));
+            animation: kbtit-sway 3s ease-in-out infinite alternate;
+            transition: transform 0.2s;
+            pointer-events: auto;
+        }
+        .kbtit-falling:hover { filter: drop-shadow(0 0 20px #fff); }
+        .kbtit-falling:active { transform: scale(0.9); }
+        @keyframes kbtit-sway {
+            from { transform: translateX(-30px) rotate(-10deg); }
+            to { transform: translateX(30px) rotate(10deg); }
         }
 
-        #entry-overlay {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95);
-            z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-
-        .ui-select-label:has(input:checked) { background-color: #3f3f46; border-color: #facc15; color: #facc15; }
-
-        .reel {
-            background: rgba(26, 26, 26, 0.9);
-            border: 2px solid #333;
-            border-radius: 8px;
-            overflow: hidden;
-            position: relative;
-            transition: border-color 0.5s;
-        }
-
-        .reel::after {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.8) 100%);
-            z-index: 10; pointer-events: none;
-        }
-
-        .reel-inner { position: absolute; width: 100%; display: flex; flex-direction: column; align-items: center; }
-
-        .symbol { width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 5px; }
-        .symbol img { object-fit: contain; border-radius: 8px; }
-        .symbol-label { font-size: 0.6rem; margin-top: 4px; color: #ddd; background: rgba(0,0,0,0.6); padding: 1px 4px; border-radius: 3px; }
-
-        .blur { filter: blur(4px) opacity(0.6); }
-
-        @keyframes win-glow {
-            0% { box-shadow: 0 0 10px #facc15; border-color: #facc15; }
-            100% { box-shadow: 0 0 40px #f59e0b; border-color: #ffffff; }
-        }
-        .win-active { animation: win-glow 0.2s ease-in-out infinite alternate; }
-
+        /* Buttons */
         .btn-spin {
             display: block; width: 100%; max-width: 280px; height: 100px; margin: 0 auto;
             background-image: url('./image/spin_1.png'); background-size: contain; background-repeat: no-repeat;
             background-position: center; background-color: transparent; border: none; cursor: pointer;
-            outline: none; -webkit-tap-highlight-color: transparent;
         }
         .btn-fever { background-image: url('./image/spin_2.png') !important; filter: drop-shadow(0 0 15px #facc15); }
         .btn-oshiru { filter: sepia(1) hue-rotate(-30deg) drop-shadow(0 0 15px #92400e); }
-        
         .btn-spin:active:not(:disabled) { transform: scale(0.92); }
         .btn-spin:disabled { filter: grayscale(1) opacity(0.3); }
 
-        .fever-label {
-            position: absolute; top: -15px; right: -5px; background: red; color: white;
-            padding: 2px 8px; font-size: 10px; border-radius: 20px; transform: rotate(15deg);
-            box-shadow: 0 0 10px red; z-index: 20; display: none;
+        /* Labels */
+        .fever-label, .oshiru-label {
+            position: absolute; top: -15px; padding: 2px 8px; font-size: 10px; border-radius: 20px; display: none; z-index: 20;
         }
-        .oshiru-label {
-            position: absolute; top: -15px; left: -5px; background: #78350f; color: #fde68a;
-            padding: 2px 8px; font-size: 10px; border-radius: 20px; transform: rotate(-15deg);
-            box-shadow: 0 0 10px #78350f; z-index: 20; display: none;
-        }
+        .fever-label { right: -5px; background: red; box-shadow: 0 0 10px red; transform: rotate(15deg); }
+        .oshiru-label { left: -5px; background: #78350f; color: #fde68a; box-shadow: 0 0 10px #78350f; transform: rotate(-15deg); }
 
-        .bet-btn { background: rgba(39, 39, 42, 0.8); border: 2px solid #3f3f46; cursor: pointer; font-size: 10px; padding: 4px; }
-        .bet-btn.active { background: #facc15; color: black; border-color: #ffffff; box-shadow: 0 0 10px #facc15; }
+        .oshiru-timer { width: 100%; height: 4px; background: #451a03; border-radius: 2px; margin-top: 5px; display: none; overflow: hidden; }
+        .oshiru-timer-bar { width: 100%; height: 100%; background: #facc15; }
 
-        #share-modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200;
-            display: none; align-items: center; justify-content: center; padding: 20px;
-        }
-
-        #fever-multiplier-panel {
-            max-height: 0;
-            overflow: hidden;
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            opacity: 0;
-            margin-top: 0;
-        }
-        #fever-multiplier-panel.active {
-            max-height: 100px;
-            opacity: 1;
-            margin-top: 1rem;
-        }
-        .multiplier-display {
-            background: linear-gradient(180deg, #450a0a 0%, #000 100%);
-            border: 2px solid #ca8a04;
-            box-shadow: inset 0 0 15px rgba(202, 138, 4, 0.5);
-            height: 60px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            position: relative;
-        }
-        .multiplier-val {
-            font-size: 2.5rem;
-            color: #fff;
-            text-shadow: 0 0 10px #facc15;
-            font-weight: 900;
-            font-style: italic;
-        }
-        .multiplier-spinning { animation: multiplier-flash 0.1s infinite; }
-        @keyframes multiplier-flash { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-
-        #debug-panel { display: none; }
-        .auto-active { background: #16a34a !important; color: white !important; border-color: #4ade80 !important; box-shadow: 0 0 15px #16a34a; }
-        
-        /* Oshiru Timer Progress Bar */
-        #oshiru-timer-container {
-            width: 100%;
-            height: 4px;
-            background: #451a03;
-            border-radius: 2px;
-            margin-top: 5px;
-            display: none;
-        }
-        #oshiru-timer-bar {
-            width: 100%;
-            height: 100%;
-            background: #facc15;
-            transition: width 0.1s linear;
-        }
-
-        @keyframes dropDown {
-            0% { top: -100px; opacity: 0; }
-            10% { opacity: 1; }
-            100% { top: 110%; opacity: 1; }
+        #entry-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95);
+            z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
     </style>
 </head>
@@ -225,155 +108,120 @@
 
     <div id="entry-overlay">
         <img src="./image/真夏の夜のカジノ.png" alt="Logo" class="w-48 mb-6">
-        <h1 class="text-xl mb-6 text-yellow-500 italic text-center">24歳、カジノです</h1>
         <button id="entry-btn" class="bg-red-600 hover:bg-red-500 text-white px-10 py-3 rounded-full text-xl font-black shadow-[0_0_20px_red]">入店する</button>
-        <div class="mt-8 flex flex-col items-center">
-            <p class="text-zinc-400 text-sm mb-3 font-bold">プレイ環境を選択</p>
-            <div class="flex gap-4 bg-zinc-900 p-2 rounded-xl border border-zinc-700">
-                <label class="cursor-pointer flex items-center gap-2 text-sm text-white px-4 py-2 rounded-lg ui-select-label"><input type="radio" name="ui-mode" value="mobile" checked>📱 スマホ</label>
-                <label class="cursor-pointer flex items-center gap-2 text-sm text-white px-4 py-2 rounded-lg ui-select-label"><input type="radio" name="ui-mode" value="pc">💻 PC</label>
-            </div>
+        <div class="mt-8 flex gap-4 bg-zinc-900 p-2 rounded-xl border border-zinc-700">
+            <label class="cursor-pointer text-xs text-white px-4 py-2 rounded-lg bg-zinc-800"><input type="radio" name="ui-mode" value="mobile" checked> 📱 スマホ</label>
+            <label class="cursor-pointer text-xs text-white px-4 py-2 rounded-lg bg-zinc-800"><input type="radio" name="ui-mode" value="pc"> 💻 PC</label>
         </div>
     </div>
 
-    <div id="share-modal">
-        <div class="bg-zinc-900 border-2 border-yellow-500 p-8 rounded-3xl text-center max-w-sm w-full">
-            <div id="modal-icon" class="text-5xl mb-4">🙏</div>
-            <h2 id="modal-title" class="text-2xl font-bold text-yellow-500 mb-4">共有ボーナス！</h2>
-            <p id="modal-desc" class="text-sm text-zinc-300 mb-8">𝕏でポストしてクレジットを回復しました！</p>
-            <button onclick="closeShareModal()" class="w-full bg-yellow-500 text-black py-4 rounded-xl font-black">ありがとナス！</button>
-        </div>
-    </div>
-
-    <!-- Audio Assets -->
+    <!-- Audio -->
     <audio id="audio-bgm" src="./audio/yaranaika.mp3" loop></audio>
     <audio id="audio-fever" src="./audio/4545.mp3" loop></audio>
     <audio id="audio-ikisugi" src="./audio/ikisugi.wav"></audio>
-    <audio id="audio-sodayo" src="./audio/sodayo.wav"></audio>
-    <audio id="audio-yametekure" src="./audio/yametekure.wav"></audio>
+    <audio id="audio-nasu" src="./audio/nasu.wav"></audio>
     <audio id="audio-yattaze" src="./audio/yattaze.wav"></audio>
-    <audio id="audio-iiyo" src="./audio/114514.wav"></audio>
     <audio id="audio-spin" src="./audio/butchipa.wav" loop></audio>
     <audio id="audio-aa" src="./audio/aa.wav" loop></audio>
-    <audio id="audio-nasu" src="./audio/nasu.wav"></audio>
 
     <div id="main-layout">
         <div id="app-container" class="relative">
-            <div class="absolute top-3 right-4 flex flex-col items-center">
-                <span class="text-[7px] text-zinc-500 mb-1">VOL</span>
-                <input type="range" id="bgm-volume" min="0" max="1" step="0.01" value="0.5" class="w-16 h-1 bg-zinc-700 rounded-lg appearance-none">
-            </div>
-
-            <div class="text-center mt-4 mb-4 flex justify-center"><img id="title-logo" src="./image/真夏の夜のカジノ.png" alt="Logo"></div>
+            <div class="text-center mt-4 mb-4"><img src="./image/真夏の夜のカジノ.png" alt="Logo" class="mx-auto h-12"></div>
 
             <div class="grid grid-cols-2 gap-3 mb-4">
                 <div class="bg-black/80 rounded-xl p-2 border-2 border-zinc-700">
-                    <span class="text-[8px] text-zinc-500 block uppercase">Credit</span>
+                    <span class="text-[8px] text-zinc-500 block">CREDIT</span>
                     <span id="balance" class="text-2xl font-mono text-green-500">1000</span>
                 </div>
                 <div class="bg-black/80 rounded-xl p-2 border-2 border-zinc-700 text-right relative">
-                    <div id="fever-count-badge" class="fever-label">FEVER: <span id="fever-remaining">0</span></div>
+                    <div id="fever-badge" class="fever-label">FEVER: <span id="fever-rem">0</span></div>
                     <div id="oshiru-badge" class="oshiru-label">汚汁モード中</div>
-                    <span class="text-[8px] text-zinc-500 block uppercase">Payout</span>
+                    <span class="text-[8px] text-zinc-500 block">PAYOUT</span>
                     <span id="payout" class="text-2xl font-mono text-yellow-500">0</span>
                 </div>
             </div>
 
-            <div class="flex justify-between gap-1 mb-4">
-                <button onclick="changeBet(10)" data-amount="10" class="bet-btn active flex-1 rounded-md font-bold">10</button>
-                <button onclick="changeBet(50)" data-amount="50" class="bet-btn flex-1 rounded-md font-bold">50</button>
-                <button onclick="changeBet(100)" data-amount="100" class="bet-btn flex-1 rounded-md font-bold">100</button>
-                <button onclick="changeBet(500)" data-amount="500" class="bet-btn flex-1 rounded-md font-bold">500</button>
-            </div>
-
-            <div id="machine-frame" class="bg-black/60 p-2 rounded-2xl border-2 border-zinc-800 flex flex-col gap-1 items-center">
+            <div class="bg-black/60 p-2 rounded-2xl border-2 border-zinc-800 flex flex-col gap-1 items-center mb-4">
                 <div class="flex justify-center gap-1">
                     <div class="reel"><div id="reel1" class="reel-inner"></div></div>
                     <div class="reel"><div id="reel2" class="reel-inner"></div></div>
                     <div class="reel"><div id="reel3" class="reel-inner"></div></div>
                 </div>
-
-                <div id="oshiru-timer-container">
-                    <div id="oshiru-timer-bar"></div>
-                </div>
-
-                <div id="fever-multiplier-panel" class="w-full">
-                    <div class="multiplier-display">
-                        <div class="flex flex-col">
-                            <span class="multiplier-label">Fever Multiplier</span>
-                            <span class="text-[10px] text-zinc-500">当たり倍率抽選</span>
-                        </div>
-                        <div id="multiplier-val" class="multiplier-val">x1</div>
-                    </div>
-                </div>
+                <div id="oshiru-timer" class="oshiru-timer"><div id="oshiru-timer-bar" class="oshiru-timer-bar"></div></div>
             </div>
 
-            <div id="msg" class="h-12 flex items-center justify-center text-center font-bold text-sm text-zinc-300 italic">やってやりましょうよ！</div>
+            <div id="msg" class="h-10 text-center font-bold text-sm text-zinc-300 italic mb-2">いらっしゃいませ！</div>
 
-            <div class="mt-2 flex flex-col gap-4">
-                <button id="spin-btn" class="btn-spin"></button>
-                <div class="flex justify-between items-center px-1">
-                    <div id="bet-display" class="text-[10px] font-bold text-zinc-500 uppercase">BET: 10</div>
-                    <button id="reset-btn" class="text-[9px] text-zinc-600 underline">再走（リセット）</button>
+            <button id="spin-btn" class="btn-spin"></button>
+            <div class="mt-4 flex justify-between items-center text-[10px] text-zinc-500 font-bold uppercase">
+                <div id="bet-info">BET: 10</div>
+                <button id="reset-btn" class="underline">再走（リセット）</button>
+            </div>
+
+            <!-- Secret Code UI -->
+            <div class="mt-6 p-3 bg-zinc-900/50 rounded-xl border border-zinc-800">
+                <p class="text-[9px] text-zinc-500 mb-2 font-bold uppercase tracking-widest text-center">Secret Code</p>
+                <div class="flex gap-2">
+                    <input type="text" id="promo-input" placeholder="コードを入力" class="flex-1 bg-black/50 border border-zinc-700 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-red-600">
+                    <button id="promo-btn" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-xs font-bold transition-colors">適用</button>
                 </div>
             </div>
-            <div id="flash-overlay" class="fixed inset-0 pointer-events-none z-50 opacity-0 bg-white transition-opacity duration-100"></div>
         </div>
 
-        <div id="side-panel">
-            <div id="share-card" class="side-card bg-gradient-to-br from-zinc-800 to-blue-900 border-none">
-                <h3 class="text-white text-xs font-black mb-2">𝕏 で共有</h3>
-                <p class="text-[10px] text-blue-100 mb-4">ポストしてクレジットを回復（+200枚）<br><span id="share-remaining-label" class="text-[9px] opacity-70">残り: 10回</span></p>
-                <button id="share-btn" class="w-full bg-white text-black py-3 rounded-full font-black text-sm">共有して回復する</button>
+        <div id="side-panel" class="flex flex-col gap-4 w-full max-w-[200px]">
+            <div class="bg-zinc-900/80 p-4 rounded-2xl border border-zinc-700 text-center">
+                <p class="text-[10px] text-zinc-500 mb-2 uppercase">Auto Play</p>
+                <button id="auto-btn" class="w-full bg-zinc-800 py-2 rounded-lg text-xs font-bold border border-zinc-600">オート開始</button>
             </div>
-
-            <div class="side-card">
-                <h3 class="text-zinc-400 text-[10px] font-bold mb-3 uppercase tracking-tighter">Secret Code</h3>
-                <div class="flex gap-2">
-                    <input type="text" id="promo-input" placeholder="コードを入力..." class="flex-1 bg-black border border-zinc-600 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-yellow-500 text-yellow-500">
-                    <button id="promo-btn" class="bg-zinc-700 hover:bg-zinc-600 text-white text-[10px] px-3 rounded-lg font-black transition-colors">適用</button>
+            
+            <div class="bg-zinc-900/80 p-4 rounded-2xl border border-zinc-700 text-center">
+                <p class="text-[10px] text-zinc-500 mb-2 uppercase">SNS Share</p>
+                <div class="grid grid-cols-1 gap-2">
+                    <button id="share-btn" class="w-full bg-sky-600 hover:bg-sky-500 py-2 rounded-lg text-xs font-bold transition-colors">𝕏(X)で共有</button>
+                    <button id="share-karotter-btn" class="w-full bg-green-600 hover:bg-green-500 py-2 rounded-lg text-xs font-bold transition-colors">Karotterで共有</button>
                 </div>
-                <p id="promo-error" class="text-[8px] text-red-500 mt-2 opacity-0">使用済みか無効なコードです</p>
+                <p id="share-info" class="text-[8px] text-zinc-600 mt-2">残り共有回数: 10</p>
             </div>
 
-            <div class="side-card">
-                <h3 class="text-zinc-400 text-[10px] font-bold mb-3 uppercase tracking-tighter">Auto Play</h3>
-                <button id="auto-spin-btn" class="w-full bg-zinc-800 border-2 border-zinc-700 py-3 rounded-xl font-black text-xs transition-all">オートスピン開始<br><span class="text-[8px] opacity-60">(1回ごとに+10枚)</span></button>
-            </div>
-
-            <div id="debug-panel" class="side-card">
-                <h3 class="text-yellow-500 text-[10px] font-bold mb-3 uppercase">Developer Debug</h3>
-                <button id="force-fever-btn" class="w-full bg-red-600 text-white py-2 rounded-lg font-black text-[10px] mb-2">強制フィーバー</button>
-                <button id="force-oshiru-btn" class="w-full bg-amber-800 text-white py-2 rounded-lg font-black text-[10px]">強制汚汁モード</button>
+            <div id="debug-panel" class="hidden bg-zinc-900/80 p-4 rounded-2xl border border-yellow-900">
+                <p class="text-[10px] text-yellow-600 mb-2 font-bold">DEBUG</p>
+                <button id="force-oshiru" class="w-full bg-amber-900 text-[10px] py-1 rounded mb-1">強制汚汁</button>
+                <button id="force-kbtit" class="w-full bg-zinc-700 text-[10px] py-1 rounded">KBTIT召喚</button>
             </div>
         </div>
     </div>
 
+    <div id="flash-overlay" class="fixed inset-0 pointer-events-none z-50 opacity-0 bg-white transition-opacity duration-100"></div>
+
     <script>
-        // UI Mode Setup
-        const uiRadios = document.querySelectorAll('input[name="ui-mode"]');
-        const isPCInitial = window.innerWidth >= 768;
-        document.body.className = isPCInitial ? 'ui-pc' : 'ui-mobile';
-        uiRadios.forEach(radio => {
-            if ((radio.value === 'pc' && isPCInitial) || (radio.value === 'mobile' && !isPCInitial)) radio.checked = true;
-            radio.addEventListener('change', (e) => {
-                const mode = e.target.value;
-                document.body.classList.remove('ui-pc', 'ui-mobile');
-                document.body.classList.add(`ui-${mode}`);
-            });
-        });
+        // Elements
+        const spinBtn = document.getElementById('spin-btn');
+        const balanceEl = document.getElementById('balance');
+        const payoutEl = document.getElementById('payout');
+        const shareBtn = document.getElementById('share-btn');
+        const shareKarotterBtn = document.getElementById('share-karotter-btn');
+        const promoBtn = document.getElementById('promo-btn');
+        const promoInput = document.getElementById('promo-input');
+        const shareInfoEl = document.getElementById('share-info');
 
-        // Debug Toggle
-        let debugMode = false;
-        window.addEventListener('keydown', e => {
-            if (e.shiftKey && e.code === 'Space') {
-                e.preventDefault();
-                debugMode = !debugMode;
-                document.getElementById('debug-panel').style.display = debugMode ? 'block' : 'none';
-            }
-        });
+        // Setup UI
+        const uiMode = document.querySelectorAll('input[name="ui-mode"]');
+        uiMode.forEach(r => r.addEventListener('change', e => {
+            document.body.className = `ui-${e.target.value}`;
+        }));
 
-        // Symbols Data
+        // State
+        let balance = 1000;
+        let bet = 10;
+        let isSpinning = false;
+        let isFever = false;
+        let isOshiru = false;
+        let feverRem = 0;
+        let isAuto = false;
+        let shareCount = 0;
+        const MAX_SHARE = 10;
+        let promoUsed = false;
+
         const charData = [
             { id: 'yjsp', name: '野獣先輩', src: './image/yjsp.png', multiplier: 810, weight: 4 },
             { id: 'mur', name: 'MUR', src: './image/mur.png', multiplier: 25, weight: 10 },
@@ -381,413 +229,289 @@
             { id: 'inmukun', name: '淫夢くん', src: './image/inmukun.png', multiplier: 2, weight: 30 },
             { id: 'kuso', name: '変態糞親父', src: './image/kuso.png', multiplier: 3, weight: 25 }
         ];
-        const feverSymbol = { id: 'logo', name: 'JackPot', src: './image/logo.png', multiplier: 114514, weight: 7 };
 
-        // State
-        let balance = 1000;
-        let betAmount = 10;
-        let isSpinning = false;
-        let isFever = false;
-        let isOshiru = false;
-        let feverRemaining = 0;
-        let isAutoSpin = false;
-        let promoUsed = false;
-        let shareCount = 0;
-        const MAX_SHARE = 10;
-        let oshiruTimer = null;
-
-        // Elements
-        const reelInners = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
-        const balanceEl = document.getElementById('balance');
-        const payoutEl = document.getElementById('payout');
-        const spinBtn = document.getElementById('spin-btn');
-        const msgEl = document.getElementById('msg');
-        const frameEl = document.getElementById('machine-frame');
-        const flashEl = document.getElementById('flash-overlay');
-        const feverBadge = document.getElementById('fever-count-badge');
-        const oshiruBadge = document.getElementById('oshiru-badge');
-        const oshiruBarContainer = document.getElementById('oshiru-timer-container');
-        const oshiruBar = document.getElementById('oshiru-timer-bar');
-        const feverRemainingEl = document.getElementById('fever-remaining');
-        const multiplierPanel = document.getElementById('fever-multiplier-panel');
-        const multiplierValEl = document.getElementById('multiplier-val');
-        const betDisplay = document.getElementById('bet-display');
-        const bgmVolumeSlider = document.getElementById('bgm-volume');
-        const shareModal = document.getElementById('share-modal');
-        const shareBtn = document.getElementById('share-btn');
-        const shareLabel = document.getElementById('share-remaining-label');
-        const promoInput = document.getElementById('promo-input');
-        const promoBtn = document.getElementById('promo-btn');
-        const promoError = document.getElementById('promo-error');
-        const autoSpinBtn = document.getElementById('auto-spin-btn');
-        
-        const audioElements = {
+        const audio = {
             bgm: document.getElementById('audio-bgm'),
             fever: document.getElementById('audio-fever'),
             ikisugi: document.getElementById('audio-ikisugi'),
-            sodayo: document.getElementById('audio-sodayo'),
-            yametekure: document.getElementById('audio-yametekure'),
+            nasu: document.getElementById('audio-nasu'),
             yattaze: document.getElementById('audio-yattaze'),
-            iiyo: document.getElementById('audio-iiyo'),
             spin: document.getElementById('audio-spin'),
-            aa: document.getElementById('audio-aa'),
-            nasu: document.getElementById('audio-nasu')
+            aa: document.getElementById('audio-aa')
         };
 
-        function safePlay(audio) {
-            if (!audio) return;
-            audio.currentTime = 0;
-            audio.play().catch(() => {});
-        }
+        function safePlay(a) { a.currentTime = 0; a.play().catch(()=>{}); }
 
-        // Initialization
-        document.getElementById('entry-btn').addEventListener('click', async () => {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            if (AudioContext) {
-                const ctx = new AudioContext();
-                if (ctx.state === 'suspended') await ctx.resume();
-            }
-            // Unlock audio
-            const unlockList = [audioElements.bgm, audioElements.ikisugi, audioElements.sodayo, audioElements.yametekure, audioElements.yattaze, audioElements.iiyo, audioElements.spin, audioElements.aa, audioElements.nasu];
-            for(const a of unlockList) {
-                try {
-                    await a.play();
-                    if (a !== audioElements.bgm) { a.pause(); a.currentTime = 0; }
-                } catch(e) {}
-            }
-            audioElements.bgm.play();
-            const overlay = document.getElementById('entry-overlay');
-            overlay.style.opacity = '0';
-            setTimeout(() => overlay.style.display = 'none', 500);
-        });
-
-        function init() {
-            reelInners.forEach(reel => {
-                reel.innerHTML = '';
-                for (let i = 0; i < 3; i++) createSymbol(reel, charData[Math.floor(Math.random() * charData.length)]);
+        // Initialize Reels
+        const reels = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
+        function initReels() {
+            reels.forEach(r => {
+                r.innerHTML = '';
+                addSymbol(r, charData[0]);
             });
-            updateUI();
         }
 
-        function createSymbol(container, data, isBlur = false) {
+        function addSymbol(container, data) {
             const div = document.createElement('div');
-            div.className = `symbol ${isBlur ? 'blur' : ''}`;
-            div.innerHTML = `<img src="${data.src}" alt="${data.name}"><span class="symbol-label">${data.name}</span>`;
+            div.className = 'symbol';
+            div.innerHTML = `<img src="${data.src}"><span class="text-[8px] mt-1 text-zinc-500">${data.name}</span>`;
             container.appendChild(div);
-            return div;
         }
 
-        function changeBet(amount) {
-            if (isSpinning || isOshiru) return;
-            betAmount = amount;
-            document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.toggle('active', parseInt(btn.getAttribute('data-amount')) === betAmount));
-            betDisplay.textContent = `BET: ${betAmount}`;
-            updateUI();
-        }
-
-        function getWeightedChar() {
-            let pool = JSON.parse(JSON.stringify(charData));
-            // 汚汁モード中はJackPot確率爆上げ
-            if (isOshiru) {
-                const jp = JSON.parse(JSON.stringify(feverSymbol));
-                jp.weight = 10; // JackPot出現率アップ
-                pool.push(jp);
-            } else if (isFever) {
-                pool.push(JSON.parse(JSON.stringify(feverSymbol)));
-                pool.forEach(c => {
-                    if (c.id === 'yjsp') c.weight = 8;
-                    if (c.id === 'mur') c.weight = 12;
-                });
+        async function startSpin() {
+            const cost = isOshiru ? 0 : (isAuto ? bet + 10 : bet);
+            if (isSpinning || balance < cost) {
+                if(isAuto) { isAuto = false; updateAutoBtn(); }
+                return;
             }
+
+            isSpinning = true;
+            balance -= cost;
+            updateUI();
+
+            const spinSfx = (isFever || isOshiru) ? audio.aa : audio.spin;
+            safePlay(spinSfx);
+
+            const results = await Promise.all(reels.map((r, i) => animate(r, i)));
+            
+            spinSfx.pause();
+            await evaluate(results);
+            
+            isSpinning = false;
+            updateUI();
+            if(isAuto) setTimeout(startSpin, 1000);
+        }
+
+        function animate(reel, i) {
+            return new Promise(resolve => {
+                const target = getChar();
+                const symH = document.body.classList.contains('ui-pc') ? 150 : 120;
+                const count = 20 + (i * 10);
+                const duration = 1500 + (i * 500);
+
+                reel.innerHTML = '';
+                for(let n=0; n<count; n++) addSymbol(reel, charData[Math.floor(Math.random()*charData.length)]);
+                addSymbol(reel, target);
+                addSymbol(reel, charData[0]);
+
+                reel.style.transition = 'none';
+                reel.style.transform = `translateY(0)`;
+                requestAnimationFrame(() => {
+                    reel.style.transition = `transform ${duration}ms cubic-bezier(0.1, 0, 0.2, 1)`;
+                    reel.style.transform = `translateY(-${count * symH}px)`;
+                });
+
+                setTimeout(() => {
+                    reel.style.transition = 'none';
+                    reel.style.transform = `translateY(0)`;
+                    reel.innerHTML = '';
+                    addSymbol(reel, target);
+                    resolve(target);
+                }, duration);
+            });
+        }
+
+        function getChar() {
+            let pool = [...charData];
+            if (isOshiru || isFever) pool.push({ id: 'logo', multiplier: 114514, weight: 5, name: 'JACKPOT', src: './image/logo.png' });
             const total = pool.reduce((s, c) => s + c.weight, 0);
             let r = Math.random() * total;
             for (const c of pool) { if (r < c.weight) return c; r -= c.weight; }
             return pool[0];
         }
 
-        async function startSpin() {
-            // 汚汁モード中は消費0
-            const totalCost = isOshiru ? 0 : (isAutoSpin ? betAmount + 10 : betAmount);
-            if (isSpinning || balance < totalCost) {
-                if(isAutoSpin) toggleAutoSpin();
+        async function evaluate(res) {
+            const ids = res.map(r => r.id);
+            let win = 0;
+
+            if (ids.includes('kmr') && ids.includes('mur') && ids.includes('yjsp') && !isOshiru) {
+                balance += 810;
+                msg('汚汁発射！！ (+810)');
+                safePlay(audio.nasu);
+                startOshiru();
                 return;
             }
 
-            isSpinning = true;
-            balance -= totalCost;
-            updateUI(); 
-
-            const currentSpinAudio = (isFever || isOshiru) ? audioElements.aa : audioElements.spin;
-            safePlay(currentSpinAudio);
-
-            msgEl.textContent = isOshiru ? 'ド 　 バ 　 ド 　 バ' : (isFever ? 'ｲｷｽｷﾞｨ!!ｲｸｲｸ…' : 'いいよ！来いよ！');
-            frameEl.classList.remove('win-active');
-            
-            const results = await Promise.all(reelInners.map((reel, i) => animateReel(reel, i)));
-            
-            audioElements.spin.pause();
-            audioElements.aa.pause();
-            
-            await evaluate(results);
-            
-            isSpinning = false;
-            updateUI();
-
-            if(isAutoSpin) {
-                const nextCost = isOshiru ? 0 : (betAmount + 10);
-                if (balance >= nextCost) setTimeout(startSpin, 1000);
-                else toggleAutoSpin();
+            if (ids[0] === ids[1] && ids[1] === ids[2]) {
+                const multi = (isFever || isOshiru) ? (Math.floor(Math.random()*8)+3) : 1;
+                win = res[0].multiplier * bet * multi;
+                msg(`やったぜ！ (${multi}倍配当: +${win})`);
+                safePlay(audio.yattaze);
+                if (ids[0] === 'yjsp' && !isFever) startFever();
+                flash();
             }
+
+            if (win > 0) { balance += win; payoutEl.textContent = win; }
+            if (isFever) { feverRem--; if(feverRem <= 0) endFever(); }
         }
 
-        function animateReel(reel, index) {
-            return new Promise(resolve => {
-                const targetChar = getWeightedChar();
-                const dummyCount = 15 + (index * 8);
-                const duration = 1200 + (index * 400);
-                const symHeight = document.body.classList.contains('ui-pc') ? 150 : 120;
-                
-                const currentHTML = reel.firstElementChild ? reel.firstElementChild.innerHTML : '';
-                reel.innerHTML = '';
-                const startSym = document.createElement('div');
-                startSym.className = 'symbol';
-                startSym.innerHTML = currentHTML;
-                reel.appendChild(startSym);
-                for(let i=0; i<dummyCount; i++) {
-                    createSymbol(reel, charData[Math.floor(Math.random() * charData.length)], true);
-                }
-                createSymbol(reel, targetChar);
-                createSymbol(reel, charData[0]);
-                reel.style.transition = 'none';
-                reel.style.transform = 'translateY(0px)';
-                requestAnimationFrame(() => {
-                    reel.style.transition = `transform ${duration}ms cubic-bezier(0.4, 0, 0.2, 1.1)`;
-                    reel.style.transform = `translateY(-${(dummyCount + 1) * symHeight}px)`;
-                });
-                setTimeout(() => {
-                    reel.style.transition = 'none';
-                    reel.style.transform = 'translateY(0px)';
-                    reel.innerHTML = '';
-                    createSymbol(reel, targetChar);
-                    createSymbol(reel, charData[0]);
-                    resolve(targetChar);
-                }, duration);
-            });
-        }
-
-        async function evaluate(results) {
-            const [c1, c2, c3] = results;
-            const resIds = [c1.id, c2.id, c3.id];
-            let win = 0;
-
-            // 汚汁モード判定: KMR, MUR, 野獣先輩が1人ずつ揃う
-            const hasKMR = resIds.includes('kmr');
-            const hasMUR = resIds.includes('mur');
-            const hasYJSP = resIds.includes('yjsp');
-
-            if (hasKMR && hasMUR && hasYJSP && !isOshiru) {
-                // 汚汁モード発動
-                balance += 810;
-                msgEl.textContent = '汚 汁 発 射 ！！ (+810)';
-                safePlay(audioElements.nasu);
-                startOshiru();
-                triggerFlash();
-            } else if (c1.id === c2.id && c2.id === c3.id) {
-                // 揃い判定
-                let baseWin = c1.multiplier * betAmount; 
-                let rouletteMulti = 1;
-
-                if (isFever || isOshiru) {
-                    rouletteMulti = Math.floor(Math.random() * 8) + 3;
-                    multiplierValEl.textContent = `x${rouletteMulti}`;
-                }
-
-                win = baseWin * rouletteMulti;
-                msgEl.textContent = `や っ た ぜ (+${win})`;
-                triggerFlash();
-                
-                if (c1.id === 'yjsp') { if (!isFever) startFever(); safePlay(audioElements.ikisugi); }
-                else if (c1.id === 'mur') safePlay(audioElements.sodayo);
-                else if (c1.id === 'kmr') safePlay(audioElements.yametekure);
-                else if (c1.id === 'kuso') safePlay(audioElements.yattaze);
-                else if (c1.id === 'logo') safePlay(audioElements.ikisugi);
-            } else if (resIds.filter(id => id === 'yjsp').length === 2) {
-                win = Math.floor(betAmount * 5); 
-                msgEl.textContent = `い い よ (+${win})`;
-                safePlay(audioElements.iiyo);
-            }
-
-            if (win > 0) { balance += win; payoutEl.textContent = win; frameEl.classList.add('win-active'); }
+        function startOshiru() {
+            isOshiru = true;
+            if(isFever) endFever();
+            document.body.classList.add('oshiru-bg');
+            spinBtn.classList.add('btn-oshiru');
+            document.getElementById('oshiru-badge').style.display = 'block';
+            document.getElementById('oshiru-timer').style.display = 'block';
             
-            if (isFever && !isOshiru) { 
-                feverRemaining--; 
-                if (feverRemaining <= 0) endFever(); 
-            }
+            let time = 10000;
+            const bar = document.getElementById('oshiru-timer-bar');
+            const itv = setInterval(() => {
+                time -= 100;
+                bar.style.width = `${(time/10000)*100}%`;
+                if (time <= 0) {
+                    clearInterval(itv);
+                    isOshiru = false;
+                    document.body.classList.remove('oshiru-bg');
+                    spinBtn.classList.remove('btn-oshiru');
+                    document.getElementById('oshiru-badge').style.display = 'none';
+                    document.getElementById('oshiru-timer').style.display = 'none';
+                    updateUI();
+                }
+            }, 100);
         }
 
         function startFever() {
-            if (isOshiru) return; // 汚汁モード優先
             isFever = true; 
-            feverRemaining = Math.floor(Math.random() * 81) + 20;
+            feverRem = Math.floor(Math.random() * 81) + 20; 
             document.body.classList.add('fever-bg');
-            spinBtn.classList.add('btn-fever'); 
-            feverBadge.style.display = 'block';
-            multiplierPanel.classList.add('active'); 
-            audioElements.bgm.pause();
-            audioElements.fever.play().catch(()=>{});
+            spinBtn.classList.add('btn-fever');
+            document.getElementById('fever-badge').style.display = 'block';
+            audio.bgm.pause(); safePlay(audio.fever);
         }
 
         function endFever() {
             isFever = false;
             document.body.classList.remove('fever-bg');
             spinBtn.classList.remove('btn-fever');
-            feverBadge.style.display = 'none';
-            multiplierPanel.classList.remove('active'); 
-            audioElements.fever.pause();
-            audioElements.fever.currentTime = 0;
-            if (!isOshiru) audioElements.bgm.play().catch(()=>{});
+            document.getElementById('fever-badge').style.display = 'none';
+            audio.fever.pause(); audio.bgm.play();
         }
-
-        function startOshiru() {
-            if (isOshiru) return;
-            isOshiru = true;
-            if (isFever) endFever();
-
-            document.body.classList.add('oshiru-bg');
-            spinBtn.classList.add('btn-oshiru');
-            oshiruBadge.style.display = 'block';
-            oshiruBarContainer.style.display = 'block';
-            
-            let timeLeft = 10000; // 10秒
-            const step = 100;
-            
-            oshiruTimer = setInterval(() => {
-                timeLeft -= step;
-                const percent = (timeLeft / 10000) * 100;
-                oshiruBar.style.width = `${percent}%`;
-                
-                if (timeLeft <= 0) {
-                    endOshiru();
-                }
-            }, step);
-        }
-
-        function endOshiru() {
-            isOshiru = false;
-            clearInterval(oshiruTimer);
-            document.body.classList.remove('oshiru-bg');
-            spinBtn.classList.remove('btn-oshiru');
-            oshiruBadge.style.display = 'none';
-            oshiruBarContainer.style.display = 'none';
-            msgEl.textContent = '汚汁モード終了...';
-            updateUI();
-        }
-
-        function triggerFlash() { flashEl.style.opacity = '1'; setTimeout(() => flashEl.style.opacity = '0', 100); }
 
         function updateUI() {
             balanceEl.textContent = balance;
-            feverRemainingEl.textContent = feverRemaining;
-            const currentCost = isOshiru ? 0 : (isAutoSpin ? betAmount + 10 : betAmount);
-            spinBtn.disabled = isSpinning || balance < currentCost;
-            shareLabel.textContent = `残り: ${MAX_SHARE - shareCount}回`;
-        }
-
-        function toggleAutoSpin() {
-            isAutoSpin = !isAutoSpin;
-            if(isAutoSpin) {
-                autoSpinBtn.classList.add('auto-active');
-                autoSpinBtn.innerHTML = 'オートスピン稼働中<br><span class=\"text-[8px] opacity-80\">(ボタンで停止)</span>';
-                if(!isSpinning) startSpin();
-            } else {
-                autoSpinBtn.classList.remove('auto-active');
-                autoSpinBtn.innerHTML = 'オートスピン開始<br><span class=\"text-[8px] opacity-60\">(1回ごとに+10枚)</span>';
+            document.getElementById('fever-rem').textContent = feverRem;
+            spinBtn.disabled = isSpinning || (balance < bet && !isOshiru);
+            shareInfoEl.textContent = `残り共有回数: ${MAX_SHARE - shareCount}`;
+            if(shareCount >= MAX_SHARE) {
+                shareBtn.disabled = true;
+                shareKarotterBtn.disabled = true;
             }
-            updateUI();
         }
 
-        autoSpinBtn.addEventListener('click', toggleAutoSpin);
-        document.getElementById('force-fever-btn').addEventListener('click', () => { if(!isFever) { startFever(); safePlay(audioElements.ikisugi); } });
-        document.getElementById('force-oshiru-btn').addEventListener('click', () => { if(!isOshiru) { startOshiru(); safePlay(audioElements.nasu); } });
+        function msg(t) { document.getElementById('msg').textContent = t; }
+        function flash() { const f = document.getElementById('flash-overlay'); f.style.opacity = '1'; setTimeout(()=>f.style.opacity='0', 100); }
+
+        function spawnKBTIT() {
+            if (isOshiru) return;
+            const k = document.createElement('img');
+            k.src = './image/kbtit.png';
+            k.className = 'kbtit-falling';
+            k.style.left = `${Math.random() * 80 + 5}%`;
+            k.style.top = `-120px`;
+            document.body.appendChild(k);
+
+            let pos = -120;
+            const speed = 1.2 + (Math.random() * 0.8);
+            const fall = () => {
+                if (!k.parentElement) return;
+                pos += speed;
+                k.style.top = `${pos}px`;
+                if (pos > window.innerHeight + 150) k.remove();
+                else requestAnimationFrame(fall);
+            };
+
+            k.onclick = (e) => {
+                e.stopPropagation();
+                balance += 250;
+                updateUI();
+                msg('ありがとナス！ (+250 CREDIT)');
+                safePlay(audio.nasu);
+                k.style.transform = 'scale(0) rotate(180deg)';
+                k.style.opacity = '0';
+                k.style.transition = 'all 0.3s';
+                setTimeout(() => k.remove(), 300);
+            };
+            requestAnimationFrame(fall);
+        }
+
+        function scheduleKBTIT() {
+            const next = 15000 + (Math.random() * 10000);
+            setTimeout(() => { spawnKBTIT(); scheduleKBTIT(); }, next);
+        }
+
+        function updateAutoBtn() {
+            const autoBtn = document.getElementById('auto-btn');
+            autoBtn.textContent = isAuto ? 'オート停止' : 'オート開始';
+            autoBtn.classList.toggle('bg-green-700', isAuto);
+        }
+
+        // Event Listeners
+        document.getElementById('entry-btn').onclick = () => {
+            document.getElementById('entry-overlay').style.display = 'none';
+            audio.bgm.play();
+            scheduleKBTIT();
+        };
+
+        spinBtn.onclick = startSpin;
         
-        shareBtn.addEventListener('click', () => {
+        document.getElementById('auto-btn').onclick = () => {
+            isAuto = !isAuto;
+            updateAutoBtn();
+            if(isAuto && !isSpinning) startSpin();
+        };
+
+        function handleShare(platform) {
             if (shareCount >= MAX_SHARE) return;
-            const text = encodeURIComponent(`真夏の夜のカジノ ～THE IMP～ で遊んでます！\nhttps://yakekusolsu.github.io/inmuslot/\n現在の所持金: ${balance}クレジット\n今ならコード「YARANAIKA」で+5000クレジット！\n#真夏の夜のカジノ`);
-            window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
-            setTimeout(() => { shareCount++; balance += 200; updateUI(); safePlay(audioElements.nasu); }, 500);
-        });
+            const contentText = `真夏の夜のカジノ ～THE IMP～ で遊んでます！\nhttps://yakekusolsu.github.io/inmuslot/\n現在の所持金: ${balance}クレジット\n今ならコード「YARANAIKA」で+5000クレジット！\n#真夏の夜のカジノ`;
+            const text = encodeURIComponent(contentText);
+            
+            let url = "";
+            if (platform === 'x') {
+                url = `https://twitter.com/intent/tweet?text=${text}`;
+            } else if (platform === 'karotter') {
+                url = `https://karotter.com/intent/post?text=${text}`;
+            }
+            
+            window.open(url, '_blank');
+            
+            // クレジット付与（模擬的な遅延）
+            setTimeout(() => { 
+                shareCount++; 
+                balance += 200; 
+                updateUI(); 
+                safePlay(audio.nasu);
+                msg('共有ありがとナス！ (+200)');
+            }, 500);
+        }
+
+        shareBtn.addEventListener('click', () => handleShare('x'));
+        shareKarotterBtn.addEventListener('click', () => handleShare('karotter'));
 
         promoBtn.addEventListener('click', () => {
-            if (promoInput.value.trim().toUpperCase() === "YARANAIKA" && !promoUsed) {
-                promoUsed = true; balance += 5000; updateUI();
-                promoInput.value = ""; safePlay(audioElements.ikisugi);
+            const code = promoInput.value.trim().toUpperCase();
+            if (code === "YARANAIKA" && !promoUsed) {
+                promoUsed = true; 
+                balance += 5000; 
+                updateUI();
+                promoInput.value = ""; 
+                msg('隠しコード適用！ (+5000)');
+                safePlay(audio.ikisugi);
             }
         });
 
-        bgmVolumeSlider.addEventListener('input', (e) => {
-            const vol = parseFloat(e.target.value);
-            Object.values(audioElements).forEach(a => { if(a) a.volume = vol; });
-        });
+        document.getElementById('reset-btn').onclick = () => { location.reload(); };
 
-        spinBtn.addEventListener('click', startSpin);
-        document.getElementById('reset-btn').addEventListener('click', () => {
-            if(isSpinning) return;
-            balance = 1000; payoutEl.textContent = '0';
-            promoUsed = false; shareCount = 0; isAutoSpin = false;
-            autoSpinBtn.classList.remove('auto-active');
-            endFever(); endOshiru(); changeBet(10); init();
-        });
-
-        init();
-
-        const bonusDrop = document.getElementById("bonus-drop");
-
-        function spawnBonus() {
-            // 通常 or フィーバーのみ
-            if (!(isFever || (!isFever && !isOshiru))) return;
-        
-            bonusDrop.style.display = "block";
-            bonusDrop.style.pointerEvents = "auto";
-            bonusDrop.style.animation = "dropDown 5s linear";
-        
-            // ランダム横位置
-            const randX = Math.random() * 80 + 10;
-            bonusDrop.style.left = randX + "%";
-        
-            // 消える処理
-            setTimeout(() => {
-                bonusDrop.style.display = "none";
-                bonusDrop.style.pointerEvents = "none";
-                bonusDrop.style.animation = "";
-            }, 5000);
-        }
-        
-        // クリックで+250
-        bonusDrop.addEventListener("click", () => {
-            balance += 250;
-            updateUI();
-            safePlay(audioElements.yattaze);
-            bonusDrop.style.display = "none";
-        });
-        
-        // ランダム出現ループ
-        setInterval(() => {
-            if (Math.random() < 0.3) { // 30%で出現
-                spawnBonus();
+        window.addEventListener('keydown', e => {
+            if(e.shiftKey && e.code === 'Space') {
+                document.body.className = 'ui-pc';
+                document.getElementById('debug-panel').classList.toggle('hidden');
             }
-        }, 8000);
+        });
+        
+        document.getElementById('force-oshiru').onclick = startOshiru;
+        document.getElementById('force-kbtit').onclick = spawnKBTIT;
+
+        initReels();
     </script>
-
-    <img id="bonus-drop" src="./image/kbtit.png" style="
-    position: fixed;
-    top: -100px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    pointer-events: none;
-    z-index: 999;
-    display: none;
-    cursor: pointer;
-    ">
 </body>
 </html>
