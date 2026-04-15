@@ -712,15 +712,7 @@
         
         shareBtn.addEventListener('click', () => {
             if (shareCount >= MAX_SHARE) return;
-            const text = encodeURIComponent(
-            `真夏の夜のカジノ ～THE IMP～ で遊んでます！
-            
-            https://yakekusolsu.github.io/inmuslot/
-            
-            現在の所持金: ${balance}クレジット
-            
-            今ならコード「YARANAIKA」で+5000クレジット！`
-            );
+            const text = encodeURIComponent(`真夏の夜のカジノ ～THE IMP～ で遊んでます！\nhttps://yakekusolsu.github.io/inmuslot/\n現在の所持金: ${balance}クレジット\n今ならコード「YARANAIKA」で+5000クレジット！\n#真夏の夜のカジノ`);
             window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
             setTimeout(() => { shareCount++; balance += 200; updateUI(); safePlay(audioElements.nasu); }, 500);
         });
