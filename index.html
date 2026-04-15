@@ -41,7 +41,7 @@
             transition: all 0.3s ease;
         }
 
-        /* UIモード切替 */
+        /* UI Mode Toggle */
         .ui-pc #main-layout { flex-direction: row; align-items: flex-start; justify-content: center; }
         .ui-pc #side-panel { max-width: 240px; position: sticky; top: 20px; display: flex; }
         .ui-pc .reel { height: 150px; width: 110px; }
@@ -138,7 +138,7 @@
 
         .share-button-glow { background: linear-gradient(45deg, #000, #1DA1F2); box-shadow: 0 4px 15px rgba(29, 161, 242, 0.4); }
 
-        /* フィーバールーレット専用UI */
+        /* Fever Multiplier UI */
         #fever-multiplier-panel {
             max-height: 0;
             overflow: hidden;
@@ -222,7 +222,7 @@
     <audio id="audio-yattaze" src="./audio/yattaze.wav"></audio>
     <audio id="audio-iiyo" src="./audio/114514.wav"></audio>
     <audio id="audio-spin" src="./audio/butchipa.wav" loop></audio>
-    <audio id="audio-aa" src="./audio/aa.wav" loop></audio> <!-- フィーバー中回転音 -->
+    <audio id="audio-aa" src="./audio/aa.wav" loop></audio>
     <audio id="audio-nasu" src="./audio/nasu.wav"></audio>
 
     <div id="main-layout">
@@ -260,7 +260,6 @@
                     <div class="reel"><div id="reel3" class="reel-inner"></div></div>
                 </div>
 
-                <!-- フィーバー中のみ表示される倍率ルーレットパネル -->
                 <div id="fever-multiplier-panel" class="w-full">
                     <div class="multiplier-display">
                         <div class="flex flex-col">
@@ -387,7 +386,7 @@
             yattaze: document.getElementById('audio-yattaze'),
             iiyo: document.getElementById('audio-iiyo'),
             spin: document.getElementById('audio-spin'),
-            aa: document.getElementById('audio-aa'), // フィーバー中回転音
+            aa: document.getElementById('audio-aa'),
             nasu: document.getElementById('audio-nasu')
         };
 
@@ -410,11 +409,37 @@
                 const ctx = new AudioContext();
                 if (ctx.state === 'suspended') await ctx.resume();
             }
-            Object.values(audioElements).forEach(a => {
-                a.play().then(() => { 
-                    if (a !== audioElements.bgm && a !== audioElements.fever) { a.pause(); a.currentTime = 0; }
-                }).catch(() => {});
-            });
+
+            // アンロック処理からフィーバー音(4545.mp3)を除去
+            // SE系のみ再生して停止させる
+            const unlockList = [
+                audioElements.bgm,
+                audioElements.ikisugi,
+                audioElements.sodayo,
+                audioElements.yametekure,
+                audioElements.yattaze,
+                audioElements.iiyo,
+                audioElements.spin,
+                audioElements.aa,
+                audioElements.nasu
+            ];
+
+            for(const a of unlockList) {
+                if(!a) continue;
+                try {
+                    await a.play();
+                    // BGM以外は即停止
+                    if (a !== audioElements.bgm) {
+                        a.pause();
+                        a.currentTime = 0;
+                    }
+                } catch(e) {}
+            }
+
+            // フィーバー音は再生せず準備だけ
+            audioElements.fever.pause();
+            audioElements.fever.currentTime = 0;
+
             const overlay = document.getElementById('entry-overlay');
             overlay.style.opacity = '0';
             setTimeout(() => overlay.style.display = 'none', 500);
@@ -464,7 +489,7 @@
         function runMultiplierRoulette() {
             return new Promise(resolve => {
                 let count = 0;
-                let finalMulti = Math.floor(Math.random() * 8) + 3; // 3〜10倍
+                let finalMulti = Math.floor(Math.random() * 8) + 3;
                 multiplierValEl.classList.add('multiplier-spinning');
                 
                 const interval = setInterval(() => {
@@ -494,14 +519,12 @@
             balance -= totalCost;
             updateUI(); 
 
-            // **スピン音の排他的制御**
-            // 再生前にすべての回転音を完全にリセット
+            // スピン音管理
             audioElements.spin.pause();
             audioElements.spin.currentTime = 0;
             audioElements.aa.pause();
             audioElements.aa.currentTime = 0;
 
-            // モードに応じた音声を再生
             const currentSpinAudio = isFever ? audioElements.aa : audioElements.spin;
             safePlay(currentSpinAudio);
 
@@ -512,7 +535,6 @@
 
             const results = await Promise.all(reelInners.map((reel, i) => animateReel(reel, i)));
             
-            // 全てのスピン用ループ音を停止
             audioElements.spin.pause();
             audioElements.aa.pause();
             
@@ -624,11 +646,11 @@
             feverBadge.style.display = 'none';
             multiplierPanel.classList.remove('active'); 
             
-            // 回転音が残らないように停止
             audioElements.aa.pause();
             audioElements.aa.currentTime = 0;
 
             audioElements.fever.pause();
+            audioElements.fever.currentTime = 0;
             audioElements.bgm.play().catch(()=>{});
         }
 
