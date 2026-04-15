@@ -143,6 +143,9 @@
         }
 
         #debug-panel { display: none; border: 2px dashed #facc15; background: rgba(254, 240, 138, 0.1); }
+        
+        /* オートスピン用スタイル */
+        .auto-active { background: #16a34a !important; color: white !important; border-color: #4ade80 !important; box-shadow: 0 0 15px #16a34a; }
     </style>
 </head>
 <body class="ui-mobile">
@@ -160,7 +163,6 @@
         </div>
     </div>
 
-    <!-- 共有用モーダル -->
     <div id="share-modal">
         <div class="bg-zinc-900 border-2 border-yellow-500 p-8 rounded-3xl text-center max-w-sm w-full">
             <div id="modal-icon" class="text-5xl mb-4">🙏</div>
@@ -233,7 +235,6 @@
                 <button id="share-btn" class="w-full bg-white text-black py-3 rounded-full font-black text-sm">共有して回復する</button>
             </div>
 
-            <!-- プロモコード入力バー -->
             <div class="side-card">
                 <h3 class="text-zinc-400 text-[10px] font-bold mb-3 uppercase tracking-tighter">Secret Code</h3>
                 <div class="flex gap-2">
@@ -243,7 +244,11 @@
                 <p id="promo-error" class="text-[8px] text-red-500 mt-2 opacity-0">使用済みか無効なコードです</p>
             </div>
 
-            <!-- デバッグモードパネル -->
+            <div class="side-card">
+                <h3 class="text-zinc-400 text-[10px] font-bold mb-3 uppercase tracking-tighter">Auto Play</h3>
+                <button id="auto-spin-btn" class="w-full bg-zinc-800 border-2 border-zinc-700 py-3 rounded-xl font-black text-xs transition-all">オートスピン開始<br><span class="text-[8px] opacity-60">(1回ごとに+10枚)</span></button>
+            </div>
+
             <div id="debug-panel" class="side-card">
                 <h3 class="text-yellow-500 text-[10px] font-bold mb-3 uppercase">Developer Debug</h3>
                 <button id="force-fever-btn" class="w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded-lg font-black text-[10px] transition-all border-b-4 border-red-800 active:border-b-0 active:translate-y-1">強制フィーバー起動</button>
@@ -309,6 +314,7 @@
         let isSpinning = false;
         let isFever = false;
         let feverRemaining = 0;
+        let isAutoSpin = false;
         
         // 制限用ステータス
         let promoUsed = false;
@@ -339,6 +345,7 @@
         const promoInput = document.getElementById('promo-input');
         const promoBtn = document.getElementById('promo-btn');
         const promoError = document.getElementById('promo-error');
+        const autoSpinBtn = document.getElementById('auto-spin-btn');
         
         const audioElements = {
             bgm: document.getElementById('audio-bgm'),
@@ -418,8 +425,18 @@
         }
 
         function getWeightedChar() {
-            let pool = [...charData];
-            if (isFever) pool.push(feverSymbol);
+            let pool = JSON.parse(JSON.stringify(charData)); // 深いコピー
+            if (isFever) {
+                // フィーバー中の確率調整：Jackpotを追加し、MURと野獣先輩を当たりやすくする
+                const feverJackpot = JSON.parse(JSON.stringify(feverSymbol));
+                pool.push(feverJackpot);
+                
+                pool.forEach(c => {
+                    if (c.id === 'yjsp') c.weight = 8; // 2 -> 8 (4倍)
+                    if (c.id === 'mur') c.weight = 12; // 5 -> 12 (2.4倍)
+                });
+            }
+            
             const total = pool.reduce((s, c) => s + c.weight, 0);
             let r = Math.random() * total;
             for (const c of pool) { if (r < c.weight) return c; r -= c.weight; }
@@ -427,23 +444,38 @@
         }
 
         async function startSpin() {
-            if (isSpinning || balance < betAmount) return;
+            // 手数料計算
+            const totalCost = isAutoSpin ? betAmount + 10 : betAmount;
+            
+            if (isSpinning || balance < totalCost) {
+                if(isAutoSpin) toggleAutoSpin(); // 残高不足ならオート解除
+                return;
+            }
+
             Object.values(audioElements).forEach(audio => { 
                 if (audio !== audioElements.spin && audio !== audioElements.bgm && audio !== audioElements.fever) { 
                     audio.pause(); audio.currentTime = 0; 
                 } 
             });
+
             isSpinning = true;
-            balance -= betAmount;
+            balance -= totalCost;
             updateUI(); 
             safePlay(audioElements.spin);
             msgEl.textContent = isFever ? 'ｲｷｽｷﾞｨ!!ｲｸｲｸ…' : 'いいよ！来いよ！';
             frameEl.classList.remove('win-active');
+            
             const results = await Promise.all(reelInners.map((reel, i) => animateReel(reel, i)));
+            
             if (audioElements.spin) audioElements.spin.pause();
             evaluate(results);
             isSpinning = false;
             updateUI();
+
+            // オートスピン継続
+            if(isAutoSpin) {
+                setTimeout(startSpin, 800);
+            }
         }
 
         function animateReel(reel, index) {
@@ -497,6 +529,7 @@
                 else if (c1.id === 'mur') safePlay(audioElements.sodayo);
                 else if (c1.id === 'kmr') safePlay(audioElements.yametekure);
                 else if (c1.id === 'kuso') safePlay(audioElements.yattaze);
+                else if (c1.id === 'logo') safePlay(audioElements.ikisugi); // Jackpot
             } else if (results.filter(c => c.id === 'yjsp').length === 2) {
                 win = Math.floor(betAmount * 5); 
                 msgEl.textContent = `い　い　よ (+${win})`;
@@ -513,7 +546,10 @@
         }
 
         function startFever() {
-            isFever = true; feverRemaining = 10;
+            isFever = true; 
+            // 20~100の間で抽選
+            feverRemaining = Math.floor(Math.random() * (100 - 20 + 1)) + 20;
+            
             document.body.classList.add('fever-bg');
             spinBtn.classList.add('btn-fever'); 
             feverBadge.style.display = 'block';
@@ -538,8 +574,11 @@
         function updateUI() {
             balanceEl.textContent = balance;
             feverRemainingEl.textContent = feverRemaining;
+            
+            const currentTotalCost = isAutoSpin ? betAmount + 10 : betAmount;
+            
             document.querySelectorAll('.bet-btn').forEach(btn => btn.disabled = isSpinning || balance < parseInt(btn.getAttribute('data-amount')));
-            spinBtn.disabled = isSpinning || balance < betAmount;
+            spinBtn.disabled = isSpinning || balance < currentTotalCost;
             
             shareLabel.textContent = `残り: ${MAX_SHARE - shareCount}回`;
             if (shareCount >= MAX_SHARE) {
@@ -555,6 +594,22 @@
             document.getElementById('modal-icon').textContent = icon;
             shareModal.style.display = 'flex';
         }
+
+        // オートスピン切り替え
+        function toggleAutoSpin() {
+            isAutoSpin = !isAutoSpin;
+            if(isAutoSpin) {
+                autoSpinBtn.classList.add('auto-active');
+                autoSpinBtn.innerHTML = 'オートスピン稼働中<br><span class="text-[8px] opacity-80">(ボタンで停止)</span>';
+                if(!isSpinning) startSpin();
+            } else {
+                autoSpinBtn.classList.remove('auto-active');
+                autoSpinBtn.innerHTML = 'オートスピン開始<br><span class="text-[8px] opacity-60">(1回ごとに+10枚)</span>';
+            }
+            updateUI();
+        }
+
+        autoSpinBtn.addEventListener('click', toggleAutoSpin);
 
         document.getElementById('force-fever-btn').addEventListener('click', () => {
             if(!isFever) { 
@@ -610,6 +665,9 @@
             balance = 1000; payoutEl.textContent = '0';
             promoUsed = false;
             shareCount = 0;
+            isAutoSpin = false;
+            autoSpinBtn.classList.remove('auto-active');
+            autoSpinBtn.innerHTML = 'オートスピン開始<br><span class="text-[8px] opacity-60">(1回ごとに+10枚)</span>';
             shareBtn.disabled = false;
             shareBtn.textContent = "共有して回復する";
             shareCard.classList.remove('disabled');
