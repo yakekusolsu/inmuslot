@@ -213,6 +213,12 @@
             background: #facc15;
             transition: width 0.1s linear;
         }
+
+        @keyframes dropDown {
+            0% { top: -100px; opacity: 0; }
+            10% { opacity: 1; }
+            100% { top: 110%; opacity: 1; }
+        }
     </style>
 </head>
 <body class="ui-mobile">
@@ -706,7 +712,15 @@
         
         shareBtn.addEventListener('click', () => {
             if (shareCount >= MAX_SHARE) return;
-            const text = encodeURIComponent(`真夏の夜のカジノで${balance}枚獲得中！ #真夏の夜のカジノ`);
+            const text = encodeURIComponent(
+            `真夏の夜のカジノ ～THE IMP～ で遊んでます！
+            
+            https://yakekusolsu.github.io/inmuslot/
+            
+            現在の所持金: ${balance}クレジット
+            
+            今ならコード「YARANAIKA」で+5000クレジット！`
+            );
             window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
             setTimeout(() => { shareCount++; balance += 200; updateUI(); safePlay(audioElements.nasu); }, 500);
         });
@@ -733,6 +747,55 @@
         });
 
         init();
+
+        const bonusDrop = document.getElementById("bonus-drop");
+
+        function spawnBonus() {
+            // 通常 or フィーバーのみ
+            if (!(isFever || (!isFever && !isOshiru))) return;
+        
+            bonusDrop.style.display = "block";
+            bonusDrop.style.pointerEvents = "auto";
+            bonusDrop.style.animation = "dropDown 5s linear";
+        
+            // ランダム横位置
+            const randX = Math.random() * 80 + 10;
+            bonusDrop.style.left = randX + "%";
+        
+            // 消える処理
+            setTimeout(() => {
+                bonusDrop.style.display = "none";
+                bonusDrop.style.pointerEvents = "none";
+                bonusDrop.style.animation = "";
+            }, 5000);
+        }
+        
+        // クリックで+250
+        bonusDrop.addEventListener("click", () => {
+            balance += 250;
+            updateUI();
+            safePlay(audioElements.yattaze);
+            bonusDrop.style.display = "none";
+        });
+        
+        // ランダム出現ループ
+        setInterval(() => {
+            if (Math.random() < 0.3) { // 30%で出現
+                spawnBonus();
+            }
+        }, 8000);
     </script>
+
+    <img id="bonus-drop" src="./image/kbtit.png" style="
+    position: fixed;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    pointer-events: none;
+    z-index: 999;
+    display: none;
+    cursor: pointer;
+    ">
 </body>
 </html>
