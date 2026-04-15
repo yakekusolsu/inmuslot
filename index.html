@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>INMU SLOT MACHINE - Tatarigami Edition</title>
+    <title>INMU SLOT MACHINE - Fever Roulette Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800&display=swap');
@@ -138,22 +138,55 @@
 
         .share-button-glow { background: linear-gradient(45deg, #000, #1DA1F2); box-shadow: 0 4px 15px rgba(29, 161, 242, 0.4); }
 
-        #promo-input::placeholder {
-            color: #52525b;
-            font-size: 0.75rem;
+        /* フィーバールーレット専用UI */
+        #fever-multiplier-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            margin-top: 0;
+        }
+        #fever-multiplier-panel.active {
+            max-height: 100px;
+            opacity: 1;
+            margin-top: 1rem;
+        }
+        .multiplier-display {
+            background: linear-gradient(180deg, #450a0a 0%, #000 100%);
+            border: 2px solid #ca8a04;
+            box-shadow: inset 0 0 15px rgba(202, 138, 4, 0.5);
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            position: relative;
+        }
+        .multiplier-val {
+            font-size: 2.5rem;
+            color: #fff;
+            text-shadow: 0 0 10px #facc15;
+            font-weight: 900;
+            font-style: italic;
+        }
+        .multiplier-label {
+            font-size: 0.6rem;
+            color: #ca8a04;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .multiplier-spinning {
+            animation: multiplier-flash 0.1s infinite;
+        }
+        @keyframes multiplier-flash {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
 
         #debug-panel { display: none; border: 2px dashed #facc15; background: rgba(254, 240, 138, 0.1); }
-        
-        /* オートスピン用スタイル */
         .auto-active { background: #16a34a !important; color: white !important; border-color: #4ade80 !important; box-shadow: 0 0 15px #16a34a; }
-        
-        /* ルーレットモーダル用スタイル */
-        #roulette-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 250;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s ease-out;
-        }
     </style>
 </head>
 <body class="ui-mobile">
@@ -171,7 +204,6 @@
         </div>
     </div>
 
-    <!-- 共有用モーダル -->
     <div id="share-modal">
         <div class="bg-zinc-900 border-2 border-yellow-500 p-8 rounded-3xl text-center max-w-sm w-full">
             <div id="modal-icon" class="text-5xl mb-4">🙏</div>
@@ -179,19 +211,6 @@
             <p id="modal-desc" class="text-sm text-zinc-300 mb-8">𝕏でポストしてクレジットを回復しました！</p>
             <button onclick="closeShareModal()" class="w-full bg-yellow-500 text-black py-4 rounded-xl font-black">ありがとナス！</button>
         </div>
-    </div>
-
-    <!-- ルーレット用モーダル -->
-    <div id="roulette-overlay">
-        <h2 class="text-4xl md:text-5xl font-black text-yellow-500 mb-8 animate-pulse text-center drop-shadow-[0_0_15px_#ca8a04] italic tracking-widest">
-            FEVER MULTIPLIER
-        </h2>
-        <div class="relative flex items-center justify-center bg-zinc-900 border-4 border-yellow-500 rounded-full w-48 h-48 md:w-64 md:h-64 shadow-[0_0_50px_rgba(234,179,8,0.4)]">
-            <div id="roulette-number" class="text-7xl md:text-8xl font-black text-white drop-shadow-[0_0_20px_#ffffff] transition-all duration-300">
-                x3
-            </div>
-        </div>
-        <p class="text-zinc-400 mt-8 text-sm font-bold tracking-widest">配当倍率抽選中...</p>
     </div>
 
     <audio id="audio-bgm" src="./audio/yaranaika.mp3" loop></audio>
@@ -232,10 +251,23 @@
                 <button onclick="changeBet(500)" data-amount="500" class="bet-btn flex-1 rounded-md font-bold">500</button>
             </div>
 
-            <div id="machine-frame" class="bg-black/60 p-2 rounded-2xl border-2 border-zinc-800 flex justify-center gap-1">
-                <div class="reel"><div id="reel1" class="reel-inner"></div></div>
-                <div class="reel"><div id="reel2" class="reel-inner"></div></div>
-                <div class="reel"><div id="reel3" class="reel-inner"></div></div>
+            <div id="machine-frame" class="bg-black/60 p-2 rounded-2xl border-2 border-zinc-800 flex flex-col gap-1 items-center">
+                <div class="flex justify-center gap-1">
+                    <div class="reel"><div id="reel1" class="reel-inner"></div></div>
+                    <div class="reel"><div id="reel2" class="reel-inner"></div></div>
+                    <div class="reel"><div id="reel3" class="reel-inner"></div></div>
+                </div>
+
+                <!-- フィーバー中のみ表示される倍率ルーレットパネル -->
+                <div id="fever-multiplier-panel" class="w-full">
+                    <div class="multiplier-display">
+                        <div class="flex flex-col">
+                            <span class="multiplier-label">Fever Multiplier</span>
+                            <span class="text-[10px] text-zinc-500">当たり倍率抽選</span>
+                        </div>
+                        <div id="multiplier-val" class="multiplier-val">x1</div>
+                    </div>
+                </div>
             </div>
 
             <div id="msg" class="h-12 flex items-center justify-center text-center font-bold text-sm text-zinc-300 italic">やってやりましょうよ！</div>
@@ -276,36 +308,19 @@
                 <button id="force-fever-btn" class="w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded-lg font-black text-[10px] transition-all border-b-4 border-red-800 active:border-b-0 active:translate-y-1">強制フィーバー起動</button>
                 <p class="text-[8px] text-zinc-400 mt-2">デバッグモード有効</p>
             </div>
-
-            <div class="side-card opacity-60">
-                <h3 class="text-zinc-400 text-[10px] font-bold mb-2">遊び方</h3>
-                <div class="text-[9px] text-zinc-500 text-left">
-                    ・BET額を選んでスピン！<br>
-                    ・野獣先輩揃いでFEVER突入<br>
-                    ・FEVER中はJackpot出現率UP！<br>
-                    ・破産したら共有で回復ナス
-                </div>
-            </div>
         </div>
     </div>
 
     <script>
-        // UI切替
         const uiRadios = document.querySelectorAll('input[name="ui-mode"]');
         const isPC = window.innerWidth >= 768;
-        
         document.body.className = isPC ? 'ui-pc' : 'ui-mobile';
         
         uiRadios.forEach(radio => {
-            if ((radio.value === 'pc' && isPC) || (radio.value === 'mobile' && !isPC)) {
-                radio.checked = true;
-            }
-            radio.addEventListener('change', (e) => {
-                document.body.className = `ui-${e.target.value}`;
-            });
+            if ((radio.value === 'pc' && isPC) || (radio.value === 'mobile' && !isPC)) radio.checked = true;
+            radio.addEventListener('change', (e) => document.body.className = `ui-${e.target.value}`);
         });
 
-        // デバッグモード(Shift + Space)
         let debugMode = false;
         window.addEventListener('keydown', e => {
             if (e.shiftKey && e.code === 'Space') {
@@ -320,7 +335,6 @@
             }
         });
 
-        // スロットデータ
         const charData = [
             { id: 'yjsp', name: '野獣先輩', src: './image/yjsp.png', multiplier: 81, weight: 2 },
             { id: 'mur', name: 'MUR', src: './image/mur.png', multiplier: 11, weight: 5 },
@@ -328,7 +342,6 @@
             { id: 'inmukun', name: '淫夢くん', src: './image/inmukun.png', multiplier: 2, weight: 15 },
             { id: 'kuso', name: '変態糞親父', src: './image/kuso.png', multiplier: 3, weight: 25 }
         ];
-
         const feverSymbol = { id: 'logo', name: 'JackPot', src: './image/logo.png', multiplier: 1145, weight: 1 };
 
         let balance = 1000;
@@ -337,19 +350,12 @@
         let isFever = false;
         let feverRemaining = 0;
         let isAutoSpin = false;
-        
-        // 制限用ステータス
         let promoUsed = false;
         let shareCount = 0;
         const MAX_SHARE = 10;
 
         const REEL_SPEED = [1200, 1600, 2000];
-
-        const reelInners = [
-            document.getElementById('reel1'),
-            document.getElementById('reel2'),
-            document.getElementById('reel3')
-        ];
+        const reelInners = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
         const balanceEl = document.getElementById('balance');
         const payoutEl = document.getElementById('payout');
         const spinBtn = document.getElementById('spin-btn');
@@ -358,11 +364,12 @@
         const flashEl = document.getElementById('flash-overlay');
         const feverBadge = document.getElementById('fever-count-badge');
         const feverRemainingEl = document.getElementById('fever-remaining');
+        const multiplierPanel = document.getElementById('fever-multiplier-panel');
+        const multiplierValEl = document.getElementById('multiplier-val');
         const betDisplay = document.getElementById('bet-display');
         const bgmVolumeSlider = document.getElementById('bgm-volume');
         const shareModal = document.getElementById('share-modal');
         const shareBtn = document.getElementById('share-btn');
-        const shareCard = document.getElementById('share-card');
         const shareLabel = document.getElementById('share-remaining-label');
         const promoInput = document.getElementById('promo-input');
         const promoBtn = document.getElementById('promo-btn');
@@ -383,7 +390,6 @@
 
         audioElements.bgm.volume = 0.5;
         if(audioElements.fever) audioElements.fever.volume = 0.5;
-        
         bgmVolumeSlider.addEventListener('input', (e) => {
             audioElements.bgm.volume = e.target.value;
             audioElements.fever.volume = e.target.value;
@@ -401,20 +407,11 @@
                 const ctx = new AudioContext();
                 if (ctx.state === 'suspended') await ctx.resume();
             }
-            
             Object.values(audioElements).forEach(a => {
                 a.play().then(() => { 
-                    if (a !== audioElements.bgm && a !== audioElements.fever) { 
-                        a.pause(); a.currentTime = 0; 
-                    } else if (a === audioElements.bgm) {
-                        a.loop = true;
-                    } else if (a === audioElements.fever) {
-                        a.loop = true;
-                        a.pause(); a.currentTime = 0;
-                    }
+                    if (a !== audioElements.bgm && a !== audioElements.fever) { a.pause(); a.currentTime = 0; }
                 }).catch(() => {});
             });
-            
             const overlay = document.getElementById('entry-overlay');
             overlay.style.opacity = '0';
             setTimeout(() => overlay.style.display = 'none', 500);
@@ -447,81 +444,49 @@
         }
 
         function getWeightedChar() {
-            let pool = JSON.parse(JSON.stringify(charData)); // 深いコピー
+            let pool = JSON.parse(JSON.stringify(charData));
             if (isFever) {
-                // フィーバー中の確率調整：Jackpotを追加し、MURと野獣先輩を当たりやすくする
-                const feverJackpot = JSON.parse(JSON.stringify(feverSymbol));
-                pool.push(feverJackpot);
-                
+                pool.push(JSON.parse(JSON.stringify(feverSymbol)));
                 pool.forEach(c => {
-                    if (c.id === 'yjsp') c.weight = 8; // 2 -> 8 (4倍)
-                    if (c.id === 'mur') c.weight = 12; // 5 -> 12 (2.4倍)
+                    if (c.id === 'yjsp') c.weight = 8;
+                    if (c.id === 'mur') c.weight = 12;
                 });
             }
-            
             const total = pool.reduce((s, c) => s + c.weight, 0);
             let r = Math.random() * total;
             for (const c of pool) { if (r < c.weight) return c; r -= c.weight; }
             return pool[0];
         }
 
-        // --- ルーレット演出関数 ---
-        function playMultiplierRoulette() {
+        // 倍率ルーレット演出（インラインUI版）
+        function runMultiplierRoulette() {
             return new Promise(resolve => {
-                const overlay = document.getElementById('roulette-overlay');
-                const numberEl = document.getElementById('roulette-number');
-                
-                // モーダル表示
-                overlay.classList.remove('opacity-0', 'pointer-events-none');
-                
                 let count = 0;
-                // 3倍から10倍
-                let finalMulti = Math.floor(Math.random() * 8) + 3; 
-                
-                // ルーレット回転音の代わり
-                safePlay(audioElements.spin);
+                let finalMulti = Math.floor(Math.random() * 8) + 3; // 3〜10倍
+                multiplierValEl.classList.add('multiplier-spinning');
                 
                 const interval = setInterval(() => {
-                    const tempMulti = Math.floor(Math.random() * 8) + 3;
-                    numberEl.textContent = `x${tempMulti}`;
+                    const temp = Math.floor(Math.random() * 8) + 3;
+                    multiplierValEl.textContent = `x${temp}`;
                     count++;
                     
-                    if (count > 25) {
+                    if (count > 20) {
                         clearInterval(interval);
-                        // 結果表示
-                        numberEl.textContent = `x${finalMulti}`;
-                        numberEl.classList.remove('text-white');
-                        numberEl.classList.add('text-red-500', 'scale-125');
-                        
-                        audioElements.spin.pause();
-                        safePlay(audioElements.yattaze);
-                        
-                        // 余韻を残して閉じる
-                        setTimeout(() => {
-                            overlay.classList.add('opacity-0', 'pointer-events-none');
-                            numberEl.classList.add('text-white');
-                            numberEl.classList.remove('text-red-500', 'scale-125');
-                            resolve(finalMulti);
-                        }, 1500);
+                        multiplierValEl.textContent = `x${finalMulti}`;
+                        multiplierValEl.classList.remove('multiplier-spinning');
+                        triggerFlash(); // 倍率決定時にフラッシュ
+                        resolve(finalMulti);
                     }
-                }, 50);
+                }, 60);
             });
         }
 
         async function startSpin() {
-            // 手数料計算
             const totalCost = isAutoSpin ? betAmount + 10 : betAmount;
-            
             if (isSpinning || balance < totalCost) {
-                if(isAutoSpin) toggleAutoSpin(); // 残高不足ならオート解除
+                if(isAutoSpin) toggleAutoSpin();
                 return;
             }
-
-            Object.values(audioElements).forEach(audio => { 
-                if (audio !== audioElements.spin && audio !== audioElements.bgm && audio !== audioElements.fever) { 
-                    audio.pause(); audio.currentTime = 0; 
-                } 
-            });
 
             isSpinning = true;
             balance -= totalCost;
@@ -530,24 +495,20 @@
             msgEl.textContent = isFever ? 'ｲｷｽｷﾞｨ!!ｲｸｲｸ…' : 'いいよ！来いよ！';
             frameEl.classList.remove('win-active');
             
+            // フィーバー中は倍率表示をリセットしておく
+            if (isFever) multiplierValEl.textContent = 'x?';
+
             const results = await Promise.all(reelInners.map((reel, i) => animateReel(reel, i)));
-            
             if (audioElements.spin) audioElements.spin.pause();
             
-            // evaluate を await に変更（ルーレット演出を待つため）
             await evaluate(results);
             
             isSpinning = false;
             updateUI();
 
-            // オートスピン継続処理
             if(isAutoSpin) {
-                const nextCost = isAutoSpin ? betAmount + 10 : betAmount;
-                if (balance >= nextCost) {
-                    setTimeout(startSpin, 800);
-                } else {
-                    toggleAutoSpin(); // 次のスピンができなければ止める
-                }
+                if (balance >= (betAmount + 10)) setTimeout(startSpin, 1000);
+                else toggleAutoSpin();
             }
         }
 
@@ -556,9 +517,7 @@
                 const targetChar = getWeightedChar();
                 const dummyCount = 15 + (index * 8);
                 const duration = REEL_SPEED[index];
-                
-                const isPCMode = document.body.classList.contains('ui-pc');
-                const symHeight = isPCMode ? 150 : 120;
+                const symHeight = document.body.classList.contains('ui-pc') ? 150 : 120;
                 
                 const currentHTML = reel.firstElementChild ? reel.firstElementChild.innerHTML : '';
                 reel.innerHTML = '';
@@ -591,23 +550,19 @@
         async function evaluate(results) {
             const [c1, c2, c3] = results;
             let win = 0;
-            
-            // フィーバー突入判定
             const willFever = (c1.id === 'yjsp' && c1.id === c2.id && c2.id === c3.id && !isFever);
 
             if (c1.id === c2.id && c2.id === c3.id) {
-                // 3つ揃った場合
                 let baseWin = c1.multiplier * betAmount; 
                 let rouletteMulti = 1;
 
-                // フィーバー中 または 今回フィーバー突入時 の場合はルーレット発動
+                // フィーバー中 or 突入時に倍率ルーレット発動
                 if (isFever || willFever) {
-                    rouletteMulti = await playMultiplierRoulette();
+                    rouletteMulti = await runMultiplierRoulette();
                 }
 
                 win = baseWin * rouletteMulti;
-
-                msgEl.textContent = `や　っ　た　ぜ (+${win}) ${rouletteMulti > 1 ? '[x' + rouletteMulti + ']' : ''}`;
+                msgEl.textContent = `や っ た ぜ (+${win}) ${rouletteMulti > 1 ? '[x' + rouletteMulti + ']' : ''}`;
                 triggerFlash();
                 
                 if (c1.id === 'yjsp') { 
@@ -617,19 +572,17 @@
                 else if (c1.id === 'mur') safePlay(audioElements.sodayo);
                 else if (c1.id === 'kmr') safePlay(audioElements.yametekure);
                 else if (c1.id === 'kuso') safePlay(audioElements.yattaze);
-                else if (c1.id === 'logo') safePlay(audioElements.ikisugi); // Jackpot
+                else if (c1.id === 'logo') safePlay(audioElements.ikisugi);
                 
             } else if (results.filter(c => c.id === 'yjsp').length === 2) {
                 win = Math.floor(betAmount * 5); 
-                msgEl.textContent = `い　い　よ (+${win})`;
+                msgEl.textContent = `い い よ (+${win})`;
                 safePlay(audioElements.iiyo);
             } else {
                 msgEl.textContent = 'ヌッ！';
             }
             
             if (win > 0) { balance += win; payoutEl.textContent = win; frameEl.classList.add('win-active'); }
-            
-            // 既にフィーバー中で、今回新しく突入したわけではない場合のみ回数を減らす
             if (isFever && !willFever) { 
                 feverRemaining--; 
                 if (feverRemaining <= 0) endFever(); 
@@ -638,12 +591,12 @@
 
         function startFever() {
             isFever = true; 
-            // 20~100の間で抽選
-            feverRemaining = Math.floor(Math.random() * (100 - 20 + 1)) + 20;
-            
+            feverRemaining = Math.floor(Math.random() * 81) + 20;
             document.body.classList.add('fever-bg');
             spinBtn.classList.add('btn-fever'); 
             feverBadge.style.display = 'block';
+            multiplierPanel.classList.add('active'); // 倍率UIを表示
+            multiplierValEl.textContent = 'x1';
             
             audioElements.bgm.pause();
             audioElements.fever.currentTime = 0;
@@ -655,6 +608,7 @@
             document.body.classList.remove('fever-bg');
             spinBtn.classList.remove('btn-fever');
             feverBadge.style.display = 'none';
+            multiplierPanel.classList.remove('active'); // 倍率UIを隠す
             
             audioElements.fever.pause();
             audioElements.bgm.play().catch(()=>{});
@@ -665,28 +619,12 @@
         function updateUI() {
             balanceEl.textContent = balance;
             feverRemainingEl.textContent = feverRemaining;
-            
             const currentTotalCost = isAutoSpin ? betAmount + 10 : betAmount;
-            
             document.querySelectorAll('.bet-btn').forEach(btn => btn.disabled = isSpinning || balance < parseInt(btn.getAttribute('data-amount')));
             spinBtn.disabled = isSpinning || balance < currentTotalCost;
-            
             shareLabel.textContent = `残り: ${MAX_SHARE - shareCount}回`;
-            if (shareCount >= MAX_SHARE) {
-                shareBtn.disabled = true;
-                shareBtn.textContent = "上限に達しました";
-                shareCard.classList.add('disabled');
-            }
         }
 
-        function openModal(title, desc, icon = "🙏") {
-            document.getElementById('modal-title').textContent = title;
-            document.getElementById('modal-desc').innerHTML = desc;
-            document.getElementById('modal-icon').textContent = icon;
-            shareModal.style.display = 'flex';
-        }
-
-        // オートスピン切り替え
         function toggleAutoSpin() {
             isAutoSpin = !isAutoSpin;
             if(isAutoSpin) {
@@ -701,67 +639,32 @@
         }
 
         autoSpinBtn.addEventListener('click', toggleAutoSpin);
-
-        document.getElementById('force-fever-btn').addEventListener('click', () => {
-            if(!isFever) { 
-                startFever(); 
-                msgEl.textContent = 'デバッグ：強制起動！'; 
-                safePlay(audioElements.ikisugi); 
-            }
-        });
-
+        document.getElementById('force-fever-btn').addEventListener('click', () => { if(!isFever) { startFever(); safePlay(audioElements.ikisugi); } });
         shareBtn.addEventListener('click', () => {
             if (shareCount >= MAX_SHARE) return;
-
-            const text = encodeURIComponent(`真夏の夜のカジノ ～THE IMP～ で遊んでます！\nhttps://yakekusolsu.github.io/inmuslot/\n現在の所持金: ${balance}クレジット\n今ならコード「YARANAIKA」で+5000クレジット！\n#真夏の夜のカジノ`);
+            const text = encodeURIComponent(`真夏の夜のカジノで${balance}枚獲得中！\n#真夏の夜のカジノ`);
             window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
-            
             setTimeout(() => {
-                shareCount++;
-                balance += 200;
-                updateUI();
-                openModal("𝕏 共有ボーナス！", `宣伝ありがとうございます！<br>お礼として<span class="text-green-400 font-bold text-lg">200 CREDIT</span>をチャージしました。`);
+                shareCount++; balance += 200; updateUI();
                 safePlay(audioElements.nasu);
             }, 500);
         });
 
         promoBtn.addEventListener('click', () => {
-            if (promoUsed) {
-                promoError.textContent = "このコードは既に使用済みです";
-                promoError.classList.remove('opacity-0');
-                return;
-            }
-
             const code = promoInput.value.trim().toUpperCase();
-            if (code === "YARANAIKA") {
-                promoUsed = true;
-                balance += 5000;
-                updateUI();
+            if (code === "YARANAIKA" && !promoUsed) {
+                promoUsed = true; balance += 5000; updateUI();
                 promoInput.value = "";
-                promoError.classList.add('opacity-0');
-                openModal("隠しコード発見！", `「やらないか」<br>ボーナスとして<span class="text-yellow-400 font-bold text-lg">5,000 CREDIT</span>を差し上げました。`, "🎩");
                 safePlay(audioElements.ikisugi);
-            } else {
-                promoError.textContent = "無効なコードです";
-                promoError.classList.remove('opacity-0');
-                setTimeout(() => promoError.classList.add('opacity-0'), 2000);
             }
         });
-
-        function closeShareModal() { shareModal.style.display = 'none'; }
 
         spinBtn.addEventListener('click', startSpin);
         document.getElementById('reset-btn').addEventListener('click', () => {
             if(isSpinning) return;
             balance = 1000; payoutEl.textContent = '0';
-            promoUsed = false;
-            shareCount = 0;
-            isAutoSpin = false;
+            promoUsed = false; shareCount = 0; isAutoSpin = false;
             autoSpinBtn.classList.remove('auto-active');
-            autoSpinBtn.innerHTML = 'オートスピン開始<br><span class="text-[8px] opacity-60">(1回ごとに+10枚)</span>';
-            shareBtn.disabled = false;
-            shareBtn.textContent = "共有して回復する";
-            shareCard.classList.remove('disabled');
             endFever(); changeBet(10); init();
         });
 
