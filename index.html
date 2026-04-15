@@ -494,7 +494,14 @@
             balance -= totalCost;
             updateUI(); 
 
-            // フィーバー中は aa.wav、通常時は butchipa.wav を再生
+            // **スピン音の排他的制御**
+            // 再生前にすべての回転音を完全にリセット
+            audioElements.spin.pause();
+            audioElements.spin.currentTime = 0;
+            audioElements.aa.pause();
+            audioElements.aa.currentTime = 0;
+
+            // モードに応じた音声を再生
             const currentSpinAudio = isFever ? audioElements.aa : audioElements.spin;
             safePlay(currentSpinAudio);
 
@@ -505,9 +512,9 @@
 
             const results = await Promise.all(reelInners.map((reel, i) => animateReel(reel, i)));
             
-            // 全ての回転音を停止
-            if (audioElements.spin) audioElements.spin.pause();
-            if (audioElements.aa) audioElements.aa.pause();
+            // 全てのスピン用ループ音を停止
+            audioElements.spin.pause();
+            audioElements.aa.pause();
             
             await evaluate(results);
             
@@ -617,6 +624,10 @@
             feverBadge.style.display = 'none';
             multiplierPanel.classList.remove('active'); 
             
+            // 回転音が残らないように停止
+            audioElements.aa.pause();
+            audioElements.aa.currentTime = 0;
+
             audioElements.fever.pause();
             audioElements.bgm.play().catch(()=>{});
         }
