@@ -213,6 +213,7 @@
         </div>
     </div>
 
+    <!-- Audio Assets -->
     <audio id="audio-bgm" src="./audio/yaranaika.mp3" loop></audio>
     <audio id="audio-fever" src="./audio/4545.mp3" loop></audio>
     <audio id="audio-ikisugi" src="./audio/ikisugi.wav"></audio>
@@ -221,6 +222,7 @@
     <audio id="audio-yattaze" src="./audio/yattaze.wav"></audio>
     <audio id="audio-iiyo" src="./audio/114514.wav"></audio>
     <audio id="audio-spin" src="./audio/butchipa.wav" loop></audio>
+    <audio id="audio-aa" src="./audio/aa.wav" loop></audio> <!-- フィーバー中回転音 -->
     <audio id="audio-nasu" src="./audio/nasu.wav"></audio>
 
     <div id="main-layout">
@@ -385,14 +387,15 @@
             yattaze: document.getElementById('audio-yattaze'),
             iiyo: document.getElementById('audio-iiyo'),
             spin: document.getElementById('audio-spin'),
+            aa: document.getElementById('audio-aa'), // フィーバー中回転音
             nasu: document.getElementById('audio-nasu')
         };
 
         audioElements.bgm.volume = 0.5;
         if(audioElements.fever) audioElements.fever.volume = 0.5;
         bgmVolumeSlider.addEventListener('input', (e) => {
-            audioElements.bgm.volume = e.target.value;
-            audioElements.fever.volume = e.target.value;
+            const vol = parseFloat(e.target.value);
+            Object.values(audioElements).forEach(a => { if(a) a.volume = vol; });
         });
 
         function safePlay(audio) {
@@ -458,7 +461,6 @@
             return pool[0];
         }
 
-        // 倍率ルーレット演出（インラインUI版）
         function runMultiplierRoulette() {
             return new Promise(resolve => {
                 let count = 0;
@@ -474,7 +476,7 @@
                         clearInterval(interval);
                         multiplierValEl.textContent = `x${finalMulti}`;
                         multiplierValEl.classList.remove('multiplier-spinning');
-                        triggerFlash(); // 倍率決定時にフラッシュ
+                        triggerFlash(); 
                         resolve(finalMulti);
                     }
                 }, 60);
@@ -491,15 +493,21 @@
             isSpinning = true;
             balance -= totalCost;
             updateUI(); 
-            safePlay(audioElements.spin);
+
+            // フィーバー中は aa.wav、通常時は butchipa.wav を再生
+            const currentSpinAudio = isFever ? audioElements.aa : audioElements.spin;
+            safePlay(currentSpinAudio);
+
             msgEl.textContent = isFever ? 'ｲｷｽｷﾞｨ!!ｲｸｲｸ…' : 'いいよ！来いよ！';
             frameEl.classList.remove('win-active');
             
-            // フィーバー中は倍率表示をリセットしておく
             if (isFever) multiplierValEl.textContent = 'x?';
 
             const results = await Promise.all(reelInners.map((reel, i) => animateReel(reel, i)));
+            
+            // 全ての回転音を停止
             if (audioElements.spin) audioElements.spin.pause();
+            if (audioElements.aa) audioElements.aa.pause();
             
             await evaluate(results);
             
@@ -556,7 +564,6 @@
                 let baseWin = c1.multiplier * betAmount; 
                 let rouletteMulti = 1;
 
-                // フィーバー中 or 突入時に倍率ルーレット発動
                 if (isFever || willFever) {
                     rouletteMulti = await runMultiplierRoulette();
                 }
@@ -595,7 +602,7 @@
             document.body.classList.add('fever-bg');
             spinBtn.classList.add('btn-fever'); 
             feverBadge.style.display = 'block';
-            multiplierPanel.classList.add('active'); // 倍率UIを表示
+            multiplierPanel.classList.add('active'); 
             multiplierValEl.textContent = 'x1';
             
             audioElements.bgm.pause();
@@ -608,7 +615,7 @@
             document.body.classList.remove('fever-bg');
             spinBtn.classList.remove('btn-fever');
             feverBadge.style.display = 'none';
-            multiplierPanel.classList.remove('active'); // 倍率UIを隠す
+            multiplierPanel.classList.remove('active'); 
             
             audioElements.fever.pause();
             audioElements.bgm.play().catch(()=>{});
@@ -629,11 +636,11 @@
             isAutoSpin = !isAutoSpin;
             if(isAutoSpin) {
                 autoSpinBtn.classList.add('auto-active');
-                autoSpinBtn.innerHTML = 'オートスピン稼働中<br><span class="text-[8px] opacity-80">(ボタンで停止)</span>';
+                autoSpinBtn.innerHTML = 'オートスピン稼働中<br><span class=\"text-[8px] opacity-80\">(ボタンで停止)</span>';
                 if(!isSpinning) startSpin();
             } else {
                 autoSpinBtn.classList.remove('auto-active');
-                autoSpinBtn.innerHTML = 'オートスピン開始<br><span class="text-[8px] opacity-60">(1回ごとに+10枚)</span>';
+                autoSpinBtn.innerHTML = 'オートスピン開始<br><span class=\"text-[8px] opacity-60\">(1回ごとに+10枚)</span>';
             }
             updateUI();
         }
