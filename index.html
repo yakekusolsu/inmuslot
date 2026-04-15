@@ -727,7 +727,7 @@
         document.getElementById('force-fever-btn').addEventListener('click', () => { if(!isFever) { startFever(); safePlay(audioElements.ikisugi); } });
         document.getElementById('force-oshiru-btn').addEventListener('click', () => { if(!isOshiru) { startOshiru(); safePlay(audioElements.nasu); } });
 
-       /* --- KBTIT消える処理を含む関数 --- */
+        // KBTIT Gimmick Logic
         function spawnKBTIT() {
             if (isOshiru) return;
 
@@ -738,45 +738,45 @@
             k.style.top = `-120px`;
             document.body.appendChild(k);
 
-            // クリックイベントの設定
-            k.onclick = (e) => {
-                e.preventDefault();
-                e.stopPropagation(); // 重なりを防ぐ
-                
-                balance += 50;
-                updateUI();
-                msg('ありがとナス！ (+50 CREDIT)');
-                safePlay(audio.nasu);
-
-                // 消えるアニメーション
-                k.style.transform = 'scale(0) rotate(180deg)';
-                k.style.opacity = '0';
-                k.style.pointerEvents = 'none'; // 重複クリック防止
-                
-                setTimeout(() => {
-                    if (k.parentNode) k.parentNode.removeChild(k);
-                }, 300);
-            };
-
             let pos = -120;
             const speed = 1.2 + (Math.random() * 0.8);
+
             const fall = () => {
                 if (!k.parentElement) return;
                 pos += speed;
                 k.style.top = `${pos}px`;
+
                 if (pos > window.innerHeight + 150) {
-                    if (k.parentNode) k.parentNode.removeChild(k);
+                    k.remove();
                 } else {
                     requestAnimationFrame(fall);
                 }
             };
+
+            k.onclick = (e) => {
+                e.stopPropagation();
+                balance += 250;
+                updateUI();
+                msgEl.textContent = 'ありがとナス！ (+250 CREDIT)';
+                safePlay(audio.nasu);
+                
+                k.style.transform = 'scale(0) rotate(180deg)';
+                k.style.opacity = '0';
+                k.style.transition = 'all 0.3s';
+                setTimeout(() => k.remove(), 300);
+            };
+
             requestAnimationFrame(fall);
         }
 
         function scheduleKBTIT() {
             const next = 15000 + (Math.random() * 10000);
-            setTimeout(() => { spawnKBTIT(); scheduleKBTIT(); }, next);
+            setTimeout(() => {
+                spawnKBTIT();
+                scheduleKBTIT();
+            }, next);
         }
+        document.getElementById('force-kbtit').onclick = spawnKBTIT;
         
         shareBtn.addEventListener('click', () => {
             if (shareCount >= MAX_SHARE) return;
