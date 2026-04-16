@@ -755,9 +755,9 @@
 
             k.onclick = (e) => {
                 e.stopPropagation();
-                balance += 250;
+                balance += 10;
                 updateUI();
-                msgEl.textContent = 'ありがとナス！ (+250 CREDIT)';
+                msgEl.textContent = 'ありがとナス！ (+10 CREDIT)';
                 safePlay(audio.nasu);
                 
                 k.style.transform = 'scale(0) rotate(180deg)';
